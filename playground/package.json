@@ -8,6 +8,7 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
+    "naive-ui": "^2.37.3",
     "nuxt": "latest"
   }
 }

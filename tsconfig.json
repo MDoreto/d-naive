@@ -1,6 +1,4 @@
 {
-  "compilerOptions": {
-    "module": "es2022",
-    "moduleResolution": "Node"
-  },
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "extends": "./.nuxt/tsconfig.json"
 }
