@@ -1,20 +1,15 @@
 <template>
   <div>
-    <span
-      v-for="d in data"
-      :key="d.text"
-    >
-      <p
-        v-for="f in fields"
-        :key="f.key"
-      >
+    <v-row
+      ><v-col cols="3"><n-select /></v-col
+    ></v-row>
+
+    <span v-for="d in data" :key="d.text">
+      <p v-for="f in fields" :key="f.key">
         {{ f.title }} - {{ formatValue(d, f) }}
-      </p></span>
-    <d-data-table
-      :data="data"
-      :columns="fields"
-      editable
-    />{{ data[0] }}
+      </p></span
+    >
+    <d-data-table :data="data" :columns="fields" editable />{{ data[0] }}
     <d-input
       v-for="f in fields"
       :key="f.key"

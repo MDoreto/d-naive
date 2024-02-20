@@ -41,7 +41,6 @@
     "@vicons/material": "^0.12.0",
     "changelogen": "^0.5.5",
     "eslint": "^8.56.0",
-    "naive-ui": "^2.37.3",
     "nuxt": "^3.10.1",
     "vitest": "^1.2.2"
   }

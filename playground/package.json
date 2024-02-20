@@ -8,7 +8,13 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "naive-ui": "^2.37.3",
     "nuxt": "latest"
+  },
+  "devDependencies": {
+    "sass": "^1.71.0",
+    "vite-plugin-vuetify": "^2.0.1",
+    "vuetify": "^3.5.4"
   }
 }

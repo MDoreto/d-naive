@@ -1,4 +1,6 @@
 import { defineNuxtPlugin } from '#app'
+import naive from "naive-ui"
 export default defineNuxtPlugin((nuxtApp) => {
-  console.log('Plugin injected by my-module!')
+    nuxtApp.vueApp.use(naive)
+
 })
