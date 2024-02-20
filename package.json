@@ -1,6 +1,6 @@
 {
   "name": "d-naive",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "My new Nuxt module",
   "repository": "mdoreto/d-naive",
   "license": "MIT",
@@ -23,7 +23,7 @@
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "release": "npm run lint && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "test": "vitest run",
     "test:watch": "vitest watch"
   },
