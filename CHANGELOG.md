@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.0.9
+
+[compare changes](https://github.com/mdoreto/d-naive/compare/v1.0.7...v1.0.9)
+
+### 🏡 Chore
+
+- **release:** V1.0.7 ([c9a8065](https://github.com/mdoreto/d-naive/commit/c9a8065))
+- **release:** V1.0.8 ([2842b85](https://github.com/mdoreto/d-naive/commit/2842b85))
+
+### ❤️ Contributors
+
+- MDoreto <matheusdoreto.md@gmail.com>
+
 ## v1.0.8
 
 [compare changes](https://github.com/mdoreto/d-naive/compare/v1.0.7...v1.0.8)
