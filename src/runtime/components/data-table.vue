@@ -5,44 +5,23 @@
     :columns="cols"
     :pagination="page"
     :row-class-name="getRowClass"
-    :row-props="
-      (rowData, rowIndex) => ({
-        onClick: () => {
-          if (selectable) {
-            if (selected == rowData) selected = null;
-            else selected = rowData;
-          }
-        },
-      })
-    "
+    :row-props="rowProps"
+    style="height: '100%'"
+    :max-height="height"
+    :scroll-x="scrollX ? scrollX * columns.length : '100%'"
     v-bind="$attrs"
     @update:expanded-row-keys="expanded"
   />
 </template>
 <script setup>
-import { getValue, formatValue } from "../utils";
-import Input from "./input.vue";
-import {
-  SearchOutline,
-  CheckmarkCircleOutline,
-  BanOutline,
-  CalendarClearOutline,
-  Warning,
-  AddOutline,
-  PencilOutline,
-  CloseCircleOutline,
-  TrashOutline,
-} from "@vicons/ionicons5";
-import { ExpandSharp } from "@vicons/material";
-import {
-  NSpace,
-  NIcon,
-  NInput,
-  NButton,
-  NDatePicker,
-  NInputNumber,
-} from "naive-ui";
+import { Icon } from "#components";
 
+import { NSpace, NInput, NButton, NDatePicker, NInputNumber } from "naive-ui";
+
+import { computed, ref, watch, useAttrs, h } from "vue";
+import { formatValue, getValue } from "../utils";
+import DInput from "./input.vue";
+const attrs = useAttrs();
 const props = defineProps({
   data: {
     type: Array,
@@ -55,7 +34,7 @@ const props = defineProps({
   },
   modelValue: {
     required: false,
-    type: Object,
+    type: [Object, Number],
     default: () => {},
   },
   selectable: {
@@ -71,6 +50,20 @@ const props = defineProps({
     required: false,
     default: false,
   },
+  scrollX: {
+    type: [Number, String, Boolean],
+    required: false,
+    default: false,
+  },
+  height: {
+    type: String,
+    default: "800px",
+  },
+  returnObject: { type: Boolean, required: false, default: false },
+  selectedClass: {
+    type: String,
+    default: "selectedRow",
+  },
 });
 
 const items = computed(() => {
@@ -83,7 +76,6 @@ const items = computed(() => {
   return temp;
 });
 
-const attrs = useAttrs();
 const page = computed(() => {
   if (!props.pagination && props.pagination != false) {
     return {
@@ -102,7 +94,8 @@ const expanded = (data) => {
   emit("update:expanded", data);
 };
 
-const selected = ref({});
+const selectedKey = ref(null);
+const selectedItem = ref({});
 const editedRow = ref(null);
 const editedIndex = ref(null);
 const emit = defineEmits([
@@ -111,15 +104,31 @@ const emit = defineEmits([
   "put",
   "delete",
 ]);
-
+const rowProps = (rowData, rowIndex) => ({
+  onClick: () => {
+    if (props.selectable) {
+      let key = null;
+      if (attrs["row-key"]) {
+        key = attrs["row-key"](rowData);
+      } else {
+        key = rowIndex;
+      }
+      selectedItem.value = selectedKey.value == key ? null : rowData;
+      selectedKey.value = selectedKey.value == key ? null : key;
+    }
+  },
+});
+watch(selectedKey, (newValue) => {
+  if (!props.returnObject) emit("update:modelValue", newValue.value);
+});
 watch(
-  selected,
-  (newValue) => {
-    emit("update:modelValue", newValue);
+  () => ({ ...selectedItem.value }),
+  () => {
+    if (props.returnObject) emit("update:modelValue", selectedItem.value);
   },
   { deep: true }
 );
-function getRowClass(rowData) {
+function getRowClass(rowData, index) {
   let classes = "";
   if (rowData.disabled) classes += " disabledRow ";
   if (
@@ -127,227 +136,239 @@ function getRowClass(rowData) {
     expandedKeys.value.indexOf(attrs["row-key"](rowData)) >= 0
   )
     classes += " font-weight-bold ";
-  if (selected && selected.value == rowData && rowData.descricao != "Total:") {
-    classes += " selectedRow ";
+  if (
+    (!attrs["row-key"] && index == selectedKey.value) ||
+    (attrs["row-key"] && attrs["row-key"](rowData) == selectedKey.value)
+  ) {
+    classes += " " + props.selectedClass + " ";
   }
   return classes;
 }
 
 const cols = computed(() => {
-  const columns = [...props.columns];
+  const columns = props.columns.map((c) => ({ ...c }));
   columns.forEach((field) => {
-    field.render = (row, index) => {
-      if (
-        props.editable &&
-        (index == editedIndex.value || row.new) &&
-        (!field.pk || row.new) &&
-        !field.auto
-      )
-        return h(Input, {
-          modelValue: editedRow.value[field.key],
-          field: { ...field, label: null, title: null },
-          "onUpdate:modelValue": (value) =>
-            (editedRow.value[field.key] = value),
-        });
-      else if (field.type == "bool") {
-        if (row[field.key] == true)
-          return h(
-            NIcon,
-            { color: "green", size: 18 },
-            { default: () => h(CheckmarkCircleOutline) }
-          );
-        else if (row[field.key] == false)
-          return h(
-            NIcon,
-            { color: "red", size: 18 },
-            { default: () => h(BanOutline) }
-          );
-        else
-          return h(
-            NIcon,
-            { color: "orange", size: 18 },
-            { default: () => h(Warning) }
-          );
-      }
-      return formatValue(row, field);
-    };
-    if (field.type == "bool") {
-      field.filterOptions = [
-        { label: "Y", value: true },
-        { label: "N", value: false },
-      ];
-      field.filter = (value, row) => {
-        return getValue(row, field) == value;
-      };
-    } else if (field.type == "select") {
-      let temp = field.options;
-      if (!temp)
-        temp = [...new Set(items.value.map((o) => getValue(o, field)))]
-          .sort()
-          .map((o) => {
-            return o
-              ? {
-                  label:
-                    typeof o === "string"
-                      ? o.charAt(0).toUpperCase() + o.slice(1)
-                      : "N/A",
-                  value: o,
-                }
-              : {};
+    if (field.resizable != false) field.resizable = true;
+    if (!field.render)
+      field.render = (row, index) => {
+        if (
+          props.editable &&
+          (index == editedIndex.value || row.new) &&
+          (!field.pk || row.new) &&
+          !field.auto
+        )
+          return h(DInput, {
+            modelValue: editedRow.value[field.key],
+            ...field,
+            disableLabel: true,
+
+            "onUpdate:modelValue": (value) =>
+              (editedRow.value[field.key] = value),
           });
-      field.filterOptions = temp;
-      field.filter = (value, row) => {
-        return getValue(row, field) == value;
+        else if (field.type == "bool") {
+          if (row[field.key] == true)
+            return h(Icon, { color: "green", size: "18", name: "gg:check-o" });
+          else if (row[field.key] == false)
+            return h(Icon, {
+              color: "red",
+              size: "18",
+              name: "ion:ban-outline",
+            });
+          else
+            return h(Icon, {
+              color: "orange",
+              size: "18",
+              name: "cil:warning",
+            });
+        }
+        return formatValue(row, field);
       };
-    } else if (["date", "month", "year"].indexOf(field.type) >= 0) {
-      field.filterOptionValue = null;
-      field.renderFilterIcon = () => {
-        return h(NIcon, null, { default: () => h(CalendarClearOutline) });
-      };
-      field.filter = (value, row) => {
-        const v = new Date(getValue(row, field));
-        return (
-          !field.filterOptionValue ||
-          (row[field.key] &&
-            v >= new Date(field.filterOptionValue[0]) &&
-            v <= new Date(field.filterOptionValue[1]))
-        );
-      };
-      field.renderFilterMenu = ({ hide }) => {
-        return h(
-          NSpace,
-          { style: { padding: "12px" }, vertical: true },
-          {
-            default: () => [
-              h(NDatePicker, {
-                type: "daterange",
-                value: field.filterOptionValue,
-                format: "dd/MM/yyyy",
-                clearable: true,
-                onConfirm: ([min, max]) => {
-                  field.filterOptionValue = [min, max];
-                  hide();
-                },
-              }),
-              h(
-                NButton,
-                {
-                  size: "tiny",
-                  onClick: () => {
-                    field.filterOptionValue = null;
+    if (!field.filter && field.filter != false) {
+      if (field.type == "bool") {
+        field.filterOptions = [
+          { label: "Y", value: true },
+          { label: "N", value: false },
+        ];
+        field.filter = (value, row) => {
+          return getValue(row, field) == value;
+        };
+      } else if (field.type == "select") {
+        let temp = field.options;
+        if (!temp)
+          temp = [...new Set(items.value.map((o) => getValue(o, field)))]
+            .sort()
+            .map((o) => {
+              return o
+                ? {
+                    label:
+                      typeof o === "string"
+                        ? o.charAt(0).toUpperCase() + o.slice(1)
+                        : "N/A",
+                    value: o,
+                  }
+                : {};
+            });
+        else if (temp.length > 0 && typeof temp[0] != "object")
+          temp = temp.map((t) => ({
+            label: t.charAt(0).toUpperCase() + t.slice(1),
+            value: t,
+          }));
+        field.filterOptions = temp;
+        field.filter = (value, row) => {
+          return getValue(row, field) == value;
+        };
+      } else if (["date", "month", "year"].indexOf(field.type) >= 0) {
+        field.filterOptionValue = null;
+        field.renderFilterIcon = () => {
+          return h(Icon, { name: "ph:calendar-duotone" });
+        };
+        field.filter = (value, row) => {
+          const v = new Date(getValue(row, field));
+          return (
+            !field.filterOptionValue ||
+            (row[field.key] &&
+              v >= new Date(field.filterOptionValue[0]) &&
+              v <= new Date(field.filterOptionValue[1]))
+          );
+        };
+        field.renderFilterMenu = ({ hide }) => {
+          return h(
+            NSpace,
+            { style: { padding: "12px" }, vertical: true },
+            {
+              default: () => [
+                h(NDatePicker, {
+                  type: "daterange",
+                  value: field.filterOptionValue,
+                  format: "dd/MM/yyyy",
+                  clearable: true,
+                  onConfirm: ([min, max]) => {
+                    field.filterOptionValue = [min, max];
                     hide();
                   },
-                },
-                { default: () => "Clear" }
-              ),
-            ],
-          }
-        );
-      };
-    } else if (field.type == "number") {
-      field.filterOptionValue = null;
-      field.filter = (value, row) => {
-        const v = getValue(row, field);
-        return (
-          !field.filterOptionValue ||
-          (!field.filterOptionValue[0] | (v >= field.filterOptionValue[0]) &&
-            !field.filterOptionValue[1] | (v <= field.filterOptionValue[1]))
-        );
-      };
-      field.renderFilterIcon = () => {
-        return h(NIcon, null, { default: () => h(ExpandSharp) });
-      };
-      field.renderFilterMenu = ({ hide }) => {
-        return h(
-          NSpace,
-          { style: { padding: "12px" }, vertical: true },
-          {
-            default: () => [
-              h(NInputNumber, {
-                placeholder: "Min",
-                value: field.filterOptionValue
-                  ? field.filterOptionValue[0]
-                  : null,
-                onKeyup: (key) => {
-                  if (key.code == "Enter") hide();
-                },
-                onUpdateValue: (text) => {
-                  if (!field.filterOptionValue)
-                    field.filterOptionValue = [null, null];
-                  field.filterOptionValue[0] = text;
-                },
-              }),
-              h(NInputNumber, {
-                placeholder: "Max",
-                value: field.filterOptionValue
-                  ? field.filterOptionValue[1]
-                  : null,
-                onKeyup: (key) => {
-                  if (key.code == "Enter") hide();
-                },
-                onUpdateValue: (text) => {
-                  if (!field.filterOptionValue)
-                    field.filterOptionValue = [null, null];
-                  field.filterOptionValue[1] = text;
-                },
-              }),
-              h(
-                NButton,
-                {
-                  size: "tiny",
-                  onClick: () => {
-                    field.filterOptionValue = null;
-                    hide();
+                }),
+                h(
+                  NButton,
+                  {
+                    size: "tiny",
+                    onClick: () => {
+                      field.filterOptionValue = null;
+                      hide();
+                    },
                   },
-                },
-                { default: () => "Clear" }
-              ),
-            ],
-          }
-        );
-      };
-    } else {
-      field.filterOptionValue = null;
-      field.filter = (value, row) => {
-        const v = getValue(row, field);
-        return (
-          !value || (v && v.toLowerCase().indexOf(value.toLowerCase()) >= 0)
-        );
-      };
-      field.renderFilterIcon = () => {
-        return h(NIcon, null, { default: () => h(SearchOutline) });
-      };
-      field.renderFilterMenu = ({ hide }) => {
-        return h(
-          NSpace,
-          { style: { padding: "12px" }, vertical: true },
-          {
-            default: () => [
-              h(NInput, {
-                placeholder: "",
-                value: field.filterOptionValue,
-                onKeyup: (key) => {
-                  if (key.code == "Enter") hide();
-                },
-                onInput: (text) => {
-                  field.filterOptionValue = text;
-                },
-              }),
-              h(
-                NButton,
-                {
-                  size: "tiny",
-                  onClick: () => {
-                    field.filterOptionValue = null;
-                    hide();
+                  { default: () => "Clear" }
+                ),
+              ],
+            }
+          );
+        };
+      } else if (field.type == "number") {
+        field.filterOptionValue = null;
+        field.renderFilterIcon = () => {
+          return h(Icon, { name: "ic:outline-expand" });
+        };
+        field.filter = (value, row) => {
+          const v = getValue(row, field);
+          return (
+            !field.filterOptionValue ||
+            (!field.filterOptionValue[0] | (v >= field.filterOptionValue[0]) &&
+              !field.filterOptionValue[1] | (v <= field.filterOptionValue[1]))
+          );
+        };
+
+        field.renderFilterMenu = ({ hide }) => {
+          return h(
+            NSpace,
+            { style: { padding: "12px" }, vertical: true },
+            {
+              default: () => [
+                h(NInputNumber, {
+                  placeholder: "Min",
+                  value: field.filterOptionValue
+                    ? field.filterOptionValue[0]
+                    : null,
+                  onKeyup: (key) => {
+                    if (key.code == "Enter") hide();
                   },
-                },
-                { default: () => "Clear" }
-              ),
-            ],
-          }
-        );
-      };
+                  onUpdateValue: (text) => {
+                    if (!field.filterOptionValue)
+                      field.filterOptionValue = [null, null];
+                    field.filterOptionValue[0] = text;
+                  },
+                }),
+                h(NInputNumber, {
+                  placeholder: "Max",
+                  value: field.filterOptionValue
+                    ? field.filterOptionValue[1]
+                    : null,
+                  onKeyup: (key) => {
+                    if (key.code == "Enter") hide();
+                  },
+                  onUpdateValue: (text) => {
+                    if (!field.filterOptionValue)
+                      field.filterOptionValue = [null, null];
+                    field.filterOptionValue[1] = text;
+                  },
+                }),
+                h(
+                  NButton,
+                  {
+                    size: "tiny",
+                    onClick: () => {
+                      field.filterOptionValue = null;
+                      hide();
+                    },
+                  },
+                  { default: () => "Clear" }
+                ),
+              ],
+            }
+          );
+        };
+      } else {
+        field.filterOptionValue = null;
+        field.renderFilterIcon = () => {
+          return h(Icon, { name: "iconamoon:search" });
+        };
+        field.filter = (value, row) => {
+          const v = getValue(row, field);
+          return (
+            !value || (v && v.toLowerCase().indexOf(value.toLowerCase()) >= 0)
+          );
+        };
+
+        field.renderFilterMenu = ({ hide }) => {
+          return h(
+            NSpace,
+            { style: { padding: "12px" }, vertical: true },
+            {
+              default: () => [
+                h(NInput, {
+                  placeholder: "",
+                  value: field.filterOptionValue,
+                  onKeyup: (key) => {
+                    if (key.code == "Enter") hide();
+                  },
+                  onInput: (text) => {
+                    field.filterOptionValue = text;
+                  },
+                }),
+                h(
+                  NButton,
+                  {
+                    size: "tiny",
+                    onClick: () => {
+                      field.filterOptionValue = null;
+                      hide();
+                    },
+                  },
+                  { default: () => "Clear" }
+                ),
+              ],
+            }
+          );
+        };
+      }
     }
   });
   if (props.editable) {
@@ -369,120 +390,114 @@ const cols = computed(() => {
           },
           {
             icon: () =>
-              h(
-                NIcon,
-                {
-                  color: "green",
-                  size: 24,
-                },
-                {
-                  default: () => h(AddOutline),
-                }
-              ),
+              h(Icon, {
+                name: "mingcute:add-fill",
+                color: "green",
+              }),
           }
         );
       },
       render: (row, index) => {
         return editedIndex.value == index || row.new
-          ? [
-              h(
-                NButton,
-                {
-                  circle: true,
-                  strong: true,
-                  tertiary: true,
-                  type: "success",
-                  onClick: () => {
-                    dialog.warning({
-                      title: `Confirmação de ${
-                        row.new ? "Inclusão" : "Alteração"
-                      }`,
-                      content: `Tem certeza que deseja efetuar ${
-                        row.new ? "a Inclusão" : "as alterações"
-                      }?`,
-                      positiveText: "SIM",
-                      negativeText: "NÃO",
-                      onPositiveClick: () => {
-                        message.success(
-                          `Item ${
-                            row.new ? "incluido" : "alterado"
-                          } com sucesso`
-                        );
-                        emit("put", tempItem);
-                        editedIndex.value = null;
-                        editedRow.value = -1;
+          ? h(
+              NSpace,
+              { wrap: false },
+              {
+                default: () => [
+                  h(
+                    NButton,
+                    {
+                      circle: true,
+                      strong: true,
+                      tertiary: true,
+                      type: "success",
+                      onClick: () => {
+                        dialog.warning({
+                          title: `Confirmação de ${
+                            row.new ? "Inclusão" : "Alteração"
+                          }`,
+                          content: `Tem certeza que deseja efetuar ${
+                            row.new ? "a Inclusão" : "as alterações"
+                          }?`,
+                          positiveText: "SIM",
+                          negativeText: "NÃO",
+                          onPositiveClick: () => {
+                            message.success(
+                              `Item ${
+                                row.new ? "incluido" : "alterado"
+                              } com sucesso`
+                            );
+                            emit("put", tempItem);
+                            editedIndex.value = null;
+                            editedRow.value = -1;
+                          },
+                        });
                       },
-                    });
-                  },
-                },
-                {
-                  icon: () =>
-                    h(
-                      NIcon,
-                      { color: "green", size: 22 },
-                      {
-                        default: () => h(CheckmarkCircleOutline),
-                      }
-                    ),
-                }
-              ),
-              h(
-                NButton,
-                {
-                  circle: true,
-                  strong: true,
-                  tertiary: true,
-                  type: "warning",
-                  onClick: () => {
-                    editedIndex.value = -1;
-                    editedRow.value = null;
-                  },
-                },
-                {
-                  icon: () =>
-                    h(
-                      NIcon,
-                      { color: "orange", size: 22 },
-                      {
-                        default: () => h(CloseCircleOutline),
-                      }
-                    ),
-                }
-              ),
-              h(
-                NButton,
-                {
-                  circle: true,
-                  strong: true,
-                  tertiary: true,
-                  type: "error",
-                  onClick: () => {
-                    dialog.error({
-                      title: "Confirmação de Exclusão",
-                      content: "Tem certeza que deseja deletar este item?",
-                      positiveText: "SIM",
-                      negativeText: "NÃO",
-                      onPositiveClick: () => {
-                        message.success("Item removido com sucesso");
-                        emit("delete", editedRow.value);
+                    },
+                    {
+                      icon: () =>
+                        h(Icon, {
+                          name: "mdi:success-bold",
+                          color: "green",
+                          size: "22",
+                        }),
+                    }
+                  ),
+                  h(
+                    NButton,
+                    {
+                      circle: true,
+                      strong: true,
+                      tertiary: true,
+                      type: "warning",
+                      onClick: () => {
                         editedIndex.value = -1;
                         editedRow.value = null;
                       },
-                    });
-                  },
-                },
-                {
-                  icon: () =>
-                    h(
-                      NIcon,
-                      { color: "red", size: 22 },
-                      {
-                        default: () => h(TrashOutline),
-                      }
-                    ),
-                }
-              ),
-            ]
+                    },
+                    {
+                      icon: () =>
+                        h(Icon, {
+                          name: "mdi:cancel-bold",
+                          color: "orange",
+                          size: "22",
+                        }),
+                    }
+                  ),
+                  h(
+                    NButton,
+                    {
+                      circle: true,
+                      strong: true,
+                      tertiary: true,
+                      type: "error",
+                      onClick: () => {
+                        dialog.error({
+                          title: "Confirmação de Exclusão",
+                          content: "Tem certeza que deseja deletar este item?",
+                          positiveText: "SIM",
+                          negativeText: "NÃO",
+                          onPositiveClick: () => {
+                            message.success("Item removido com sucesso");
+                            emit("delete", editedRow.value);
+                            editedIndex.value = -1;
+                            editedRow.value = null;
+                          },
+                        });
+                      },
+                    },
+                    {
+                      icon: () =>
+                        h(Icon, {
+                          name: "ic:baseline-delete",
+                          color: "red",
+                          size: "22",
+                        }),
+                    }
+                  ),
+                ],
+              }
+            )
           : h(
               NButton,
               {
@@ -497,14 +512,11 @@ const cols = computed(() => {
               },
               {
                 icon: () =>
-                  h(
-                    NIcon,
-                    {
-                      color: "blue",
-                      size: 20,
-                    },
-                    { default: () => h(PencilOutline) }
-                  ),
+                  h(Icon, {
+                    name: "material-symbols:edit-outline",
+                    color: "blue",
+                    size: "20",
+                  }),
               }
             );
       },
@@ -517,15 +529,28 @@ const cols = computed(() => {
 const mainTable = ref("");
 watch(
   () => props.data,
-  (first) => {
-    if (first.length >= 0) {
+  (newValue) => {
+    if (selectedKey.value) {
+      const newSelect = newValue.find((i, idx) =>
+        attrs["row-key"]
+          ? attrs["row-key"](i) == selectedKey.value
+          : idx == selectedKey.value
+      );
+      if (newSelect) selectedItem.value = newSelect;
+      else {
+        selectedItem.value = null;
+        selectedKey.value = null;
+      }
+    }
+
+    if (newValue.length >= 0) {
       if (mainTable.value) mainTable.value.page(1);
     }
   }
 );
 </script>
 <style scoped>
-:deep(.selectedRow td) {
+:deep(.teste td) {
   background-color: rgba(33, 43, 89, 0.2) !important;
   /* color: white !important; */
 }

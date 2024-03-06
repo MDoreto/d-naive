@@ -10,7 +10,8 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "naive-ui": "^2.37.3",
-    "nuxt": "latest"
+    "nuxt": "latest",
+    "nuxt-icon": "^0.6.8"
   },
   "devDependencies": {
     "sass": "^1.71.0",
