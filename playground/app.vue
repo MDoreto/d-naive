@@ -25,7 +25,7 @@
       :key="f.key"
       v-model="data[0][f.key]"
       form
-      :field="f"
+      v-bind="f"
     />
   </div>
 </template>

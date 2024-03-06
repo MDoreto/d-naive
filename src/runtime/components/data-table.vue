@@ -56,7 +56,7 @@ const props = defineProps({
     default: false,
   },
   height: {
-    type: String,
+    type: [String, Number],
     default: "800px",
   },
   returnObject: { type: Boolean, required: false, default: false },
@@ -146,8 +146,8 @@ function getRowClass(rowData, index) {
 }
 
 const cols = computed(() => {
-  const columns = props.columns.map((c) => ({ ...c }));
-  columns.forEach((field) => {
+  const columns = ref(props.columns.map((c) => ({ ...c })));
+  columns.value.forEach((field) => {
     if (field.resizable != false) field.resizable = true;
     if (!field.render)
       field.render = (row, index) => {
@@ -294,6 +294,11 @@ const cols = computed(() => {
                     if (!field.filterOptionValue)
                       field.filterOptionValue = [null, null];
                     field.filterOptionValue[0] = text;
+                    if (
+                      !field.filterOptionValue[0] &&
+                      field.filterOptionValue[1]
+                    )
+                      field.filterOptionValue = null;
                   },
                 }),
                 h(NInputNumber, {
@@ -308,6 +313,11 @@ const cols = computed(() => {
                     if (!field.filterOptionValue)
                       field.filterOptionValue = [null, null];
                     field.filterOptionValue[1] = text;
+                    if (
+                      !field.filterOptionValue[0] &&
+                      field.filterOptionValue[1]
+                    )
+                      field.filterOptionValue = null;
                   },
                 }),
                 h(
@@ -521,10 +531,10 @@ const cols = computed(() => {
             );
       },
     };
-    if (columns.some((f) => f.key == "actions")) columns.splice(-1);
-    columns.push(col);
+    if (columns.value.some((f) => f.key == "actions")) columns.value.splice(-1);
+    columns.value.push(col);
   }
-  return columns;
+  return columns.value;
 });
 const mainTable = ref("");
 watch(

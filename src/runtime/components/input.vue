@@ -12,16 +12,10 @@
       v-bind="f"
       v-model:value="value"
     >
-      <template
-        v-if="f.prefix2"
-        #prefix
-      >
+      <template v-if="f.prefix2" #prefix>
         {{ f.prefix2 }}
       </template>
-      <template
-        v-if="f.suffix"
-        #suffix
-      >
+      <template v-if="f.suffix" #suffix>
         {{ f.suffix }}
       </template>
     </n-input-number>
@@ -38,44 +32,25 @@
       :format="'dd/MM/yyyy'"
       v-bind="f"
     />
-    <n-spin
-      v-else-if="f.type == 'cascader'"
-      size="10"
-      :show="loading"
-    >
+    <n-spin v-else-if="f.type == 'cascader'" size="10" :show="loading">
       <n-cascader
         v-model:value="value"
         multiple
         clearable
         :options="f.options"
         :max-tag-count="2"
-        expand-trigger="hover"
         check-strategy="parent"
-        :filterable="true"
+        filterable
         :clear-filter-after-select="true"
         v-bind="f"
       />
     </n-spin>
-    <n-switch
-      v-else-if="f.type == 'bool'"
-      v-model:value="value"
-      v-bind="f"
-    />
-    <n-input
-      v-else
-      v-model:value="value"
-      v-bind="f"
-    >
-      <template
-        v-if="f.prefix2"
-        #prefix
-      >
+    <n-switch v-else-if="f.type == 'bool'" v-model:value="value" v-bind="f" />
+    <n-input v-else v-model:value="value" v-bind="f">
+      <template v-if="f.prefix2" #prefix>
         {{ f.prefix2 }}
       </template>
-      <template
-        v-if="f.suffix"
-        #suffix
-      >
+      <template v-if="f.suffix" #suffix>
         {{ f.suffix }}
       </template>
     </n-input>
@@ -121,10 +96,11 @@ const f = computed(() => {
     )
       field.options = field.options.map((o) => ({ label: o, value: o }));
   }
-  if (field.prefix) {
-    field.prefix2 = field.prefix;
-    delete field.prefix;
-  }
+  field.prefix2 = field.prefix;
+  delete field.prefix;
+  field.suffix2 = field.suffix;
+  delete field.suffix;
+
   return field;
 });
 
