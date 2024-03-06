@@ -32,7 +32,7 @@
     <n-checkbox
       v-else-if="f.type == 'check'"
       v-bind="f"
-      v-model:value="value"
+      v-model:checked="value"
     />
     <n-date-picker
       v-else-if="['date', 'month', 'daterange', 'year'].indexOf(f.type) >= 0"
