@@ -5,12 +5,15 @@
       v-if="f.type == 'select'"
       v-bind="f"
       v-model:value="value"
+      filterable
+      clearable
       :loading="loading"
     />
     <n-input-number
       v-else-if="['number'].indexOf(f.type) >= 0"
       v-bind="f"
       v-model:value="value"
+      clearable
     >
       <template
         v-if="f.prefix2"
@@ -63,6 +66,7 @@
     <n-input
       v-else
       v-model:value="value"
+      clearable
       v-bind="f"
     >
       <template
