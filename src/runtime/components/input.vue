@@ -12,10 +12,16 @@
       v-bind="f"
       v-model:value="value"
     >
-      <template v-if="f.prefix2" #prefix>
+      <template
+        v-if="f.prefix2"
+        #prefix
+      >
         {{ f.prefix2 }}
       </template>
-      <template v-if="f.suffix" #suffix>
+      <template
+        v-if="f.suffix"
+        #suffix
+      >
         {{ f.suffix }}
       </template>
     </n-input-number>
@@ -32,7 +38,11 @@
       :format="'dd/MM/yyyy'"
       v-bind="f"
     />
-    <n-spin v-else-if="f.type == 'cascader'" size="10" :show="loading">
+    <n-spin
+      v-else-if="f.type == 'cascader'"
+      size="10"
+      :show="loading"
+    >
       <n-cascader
         v-model:value="value"
         multiple
@@ -45,12 +55,26 @@
         v-bind="f"
       />
     </n-spin>
-    <n-switch v-else-if="f.type == 'bool'" v-model:value="value" v-bind="f" />
-    <n-input v-else v-model:value="value" v-bind="f">
-      <template v-if="f.prefix2" #prefix>
+    <n-switch
+      v-else-if="f.type == 'bool'"
+      v-model:value="value"
+      v-bind="f"
+    />
+    <n-input
+      v-else
+      v-model:value="value"
+      v-bind="f"
+    >
+      <template
+        v-if="f.prefix2"
+        #prefix
+      >
         {{ f.prefix2 }}
       </template>
-      <template v-if="f.suffix" #suffix>
+      <template
+        v-if="f.suffix"
+        #suffix
+      >
         {{ f.suffix }}
       </template>
     </n-input>

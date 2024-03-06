@@ -560,7 +560,7 @@ watch(
 );
 </script>
 <style scoped>
-:deep(.teste td) {
+:deep(.selectedRow td) {
   background-color: rgba(33, 43, 89, 0.2) !important;
   /* color: white !important; */
 }
