@@ -64,6 +64,8 @@ const props = defineProps({
     type: String,
     default: "selectedRow",
   },
+  sortable: { type: Boolean, required: false, default: true },
+  resizable: { type: Boolean, required: false, default: true },
 });
 
 const items = computed(() => {
@@ -119,7 +121,7 @@ const rowProps = (rowData, rowIndex) => ({
   },
 });
 watch(selectedKey, (newValue) => {
-  if (!props.returnObject) emit("update:modelValue", newValue.value);
+  if (!props.returnObject) emit("update:modelValue", newValue);
 });
 watch(
   () => ({ ...selectedItem.value }),
@@ -148,7 +150,8 @@ function getRowClass(rowData, index) {
 const cols = computed(() => {
   const columns = ref(props.columns.map((c) => ({ ...c })));
   columns.value.forEach((field) => {
-    if (field.resizable != false) field.resizable = true;
+    if (props.sortable && field.sortable != false) field.sorter = 'default';
+    if (field.resizable != false) field.resizable = props.resizable;
     if (!field.render)
       field.render = (row, index) => {
         if (
@@ -437,7 +440,7 @@ const cols = computed(() => {
                                 row.new ? "incluido" : "alterado"
                               } com sucesso`
                             );
-                            emit("put", tempItem);
+                            emit("put", editedRow.value);
                             editedIndex.value = null;
                             editedRow.value = -1;
                           },
