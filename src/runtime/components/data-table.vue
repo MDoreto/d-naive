@@ -66,6 +66,7 @@ const props = defineProps({
   },
   sortable: { type: Boolean, required: false, default: true },
   resizable: { type: Boolean, required: false, default: true },
+  filterable: { type: Boolean, required: false, default: true },
 });
 
 const items = computed(() => {
@@ -146,11 +147,11 @@ function getRowClass(rowData, index) {
   }
   return classes;
 }
-
-const cols = computed(() => {
+const cols = ref([]);
+const processColumns = () => {
   const columns = ref(props.columns.map((c) => ({ ...c })));
   columns.value.forEach((field) => {
-    if (props.sortable && field.sortable != false) field.sorter = 'default';
+    if (props.sortable && field.sortable != false) field.sorter = "default";
     if (field.resizable != false) field.resizable = props.resizable;
     if (!field.render)
       field.render = (row, index) => {
@@ -186,7 +187,7 @@ const cols = computed(() => {
         }
         return formatValue(row, field);
       };
-    if (!field.filter && field.filter != false) {
+    if (!field.filter && props.filterable && field.filter != false) {
       if (field.type == "bool") {
         field.filterOptions = [
           { label: "Y", value: true },
@@ -388,6 +389,7 @@ const cols = computed(() => {
     const col = {
       key: "actions",
       filter: false,
+      width: "140px",
       title: () => {
         return h(
           NButton,
@@ -467,6 +469,7 @@ const cols = computed(() => {
                         editedIndex.value = -1;
                         editedRow.value = null;
                       },
+                      class: "mx-n2",
                     },
                     {
                       icon: () =>
@@ -537,12 +540,18 @@ const cols = computed(() => {
     if (columns.value.some((f) => f.key == "actions")) columns.value.splice(-1);
     columns.value.push(col);
   }
-  return columns.value;
-});
+  cols.value = columns.value;
+};
 const mainTable = ref("");
+processColumns();
+watch(
+  () => props.columns,
+  () => processColumns()
+);
 watch(
   () => props.data,
   (newValue) => {
+    processColumns();
     if (selectedKey.value) {
       const newSelect = newValue.find((i, idx) =>
         attrs["row-key"]
