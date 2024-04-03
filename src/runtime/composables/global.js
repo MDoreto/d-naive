@@ -1,5 +1,5 @@
-import { computed, ref } from "vue"
-import { createDiscreteApi, darkTheme, lightTheme } from "naive-ui"
+import { computed } from "vue"
+import { createDiscreteApi, lightTheme } from "naive-ui"
 
 const configProviderPropsRef = computed(() => ({
   theme: lightTheme,
