@@ -21,6 +21,14 @@ import { NSpace, NInput, NButton, NDatePicker, NInputNumber } from "naive-ui";
 import { computed, ref, watch, useAttrs, h, toRaw } from "vue";
 import { formatValue, getValue } from "../utils";
 import DInput from "./input.vue";
+
+import { createDiscreteApi } from "naive-ui"
+
+const { message, notification, dialog, loadingBar } = createDiscreteApi(
+  ["message", "dialog", "notification", "loadingBar"],
+
+)
+
 const attrs = useAttrs();
 const props = defineProps({
   data: {
