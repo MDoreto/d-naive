@@ -1,17 +1,17 @@
 <template>
-  <n-data-table
-    ref="originTable"
-    :data="items"
-    :columns="cols"
-    :pagination="page"
-    :row-class-name="getRowClass"
-    :row-props="rowProps"
-    style="height: '100%'"
-    :max-height="height"
-    :scroll-x="scrollX ? scrollX * columns.length : '100%'"
-    v-bind="$attrs"
-    @update:expanded-row-keys="expanded"
-  />
+    <n-data-table
+      ref="originTable"
+      :data="items"
+      :columns="cols"
+      :pagination="page"
+      :row-class-name="getRowClass"
+      :row-props="rowProps"
+      style="height: '100%'"
+      :max-height="height"
+      :scroll-x="scrollX ? scrollX * columns.length : '100%'"
+      v-bind="$attrs"
+      @update:expanded-row-keys="expanded"
+    />
 </template>
 <script setup>
 import { Icon } from "#components";
@@ -22,12 +22,9 @@ import { computed, ref, watch, useAttrs, h, toRaw } from "vue";
 import { formatValue, getValue } from "../utils";
 import DInput from "./input.vue";
 
-import { createDiscreteApi } from "naive-ui"
+import { createDiscreteApi } from "naive-ui";
 
-const { message, dialog } = createDiscreteApi(
-  ["message", "dialog"],
-
-)
+const { message, dialog } = createDiscreteApi(["message", "dialog"]);
 
 const attrs = useAttrs();
 const props = defineProps({
@@ -51,7 +48,7 @@ const props = defineProps({
   pagination: {
     type: [Object, Boolean],
     required: false,
-    default: () => false,
+    default: () => undefined,
   },
   editable: {
     type: Boolean,
@@ -76,13 +73,24 @@ const props = defineProps({
   resizable: { type: Boolean, required: false, default: true },
   filterable: { type: Boolean, required: false, default: true },
 });
-var originTable = ref(null)
-function resetFilters() { originTable.value.clearFilters(); columns.value.forEach(c => c.filterOptionValue = null) }
-function scrollTo(value) { originTable.value.scrollTo(value) }
-function getData() { return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData.map(({ __typename, ...o }) => o) }
+const originTable = ref(null);
+function resetFilters() {
+  originTable.value.clearFilters();
+  columns.value.forEach((c) => (c.filterOptionValue = null));
+}
+function scrollTo(value) {
+  originTable.value.scrollTo(value);
+}
+function getData() {
+  return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData.map(
+    ({ __typename, ...o }) => o
+  );
+}
 
 defineExpose({
-    resetFilters, scrollTo, getData
+  resetFilters,
+  scrollTo,
+  getData,
 });
 const items = computed(() => {
   const temp = !props.data
@@ -99,7 +107,7 @@ const page = computed(() => {
     return {
       defaultPageSize: 15,
       showSizePicker: true,
-      pageSizes: [10, 25, 50, items.value.length],
+      pageSizes: [10, 25, 50, items.value.length].sort((a, b) => a - b),
       showQuickJumper: true,
       disabled: props.editable && items.value.some((i) => i.editable),
     };
