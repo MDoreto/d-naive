@@ -18,14 +18,14 @@ import { Icon } from "#components";
 
 import { NSpace, NInput, NButton, NDatePicker, NInputNumber } from "naive-ui";
 
-import { computed, ref, watch, useAttrs, h, toRaw } from "vue";
+import { computed, ref, watch, useAttrs, h, toRaw, defineExpose } from "vue";
 import { formatValue, getValue } from "../utils";
 import DInput from "./input.vue";
 
 import { createDiscreteApi } from "naive-ui"
 
-const { message, notification, dialog, loadingBar } = createDiscreteApi(
-  ["message", "dialog", "notification", "loadingBar"],
+const { message, dialog } = createDiscreteApi(
+  ["message", "dialog"],
 
 )
 
@@ -42,7 +42,7 @@ const props = defineProps({
   },
   modelValue: {
     required: false,
-    type: [Object, Number],
+    type: [Object, Number, String],
     default: () => {},
   },
   selectable: {
@@ -76,7 +76,13 @@ const props = defineProps({
   resizable: { type: Boolean, required: false, default: true },
   filterable: { type: Boolean, required: false, default: true },
 });
+function resetFilters() { myTable.value.clearFilters(); props.columns.forEach(c => c.filterOptionValue = null) }
+function scrollTo(value) { myTable.value.scrollTo(value) }
+function getData() { return myTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData.map(({ __typename, ...o }) => o) }
 
+defineExpose({
+    resetFilters, scrollTo, getData
+});
 const items = computed(() => {
   const temp = !props.data
     ? []
