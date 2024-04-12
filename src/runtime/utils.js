@@ -10,10 +10,11 @@ export const formatValue = (row, field) => {
   if (!value) return ''
   switch (t) {
     case 'number': {
-      const fractionDigits = field.precision | field.precision == 0 ? field.precision : 2
+      const minPrecision = field.minPrecision || field.precision || 2
+      const maxPrecision = field.maxPrecision || field.precision || 2
       value = value.toLocaleString("pt-br", {
-        minimumFractionDigits: fractionDigits,
-        maximumFractionDigits: fractionDigits,
+        minimumFractionDigits: minPrecision,
+        maximumFractionDigits: maxPrecision,
       })
       if (field.prefix) value = field.prefix + ' ' + value
       if (field.suffix) value = value + ' ' + field.suffix
