@@ -1,6 +1,4 @@
 <template>
-  <div>
-    {{ page }}
     <n-data-table
       ref="originTable"
       :data="items"
@@ -14,7 +12,6 @@
       v-bind="$attrs"
       @update:expanded-row-keys="expanded"
     />
-  </div>
 </template>
 <script setup>
 import { Icon } from "#components";
