@@ -77,7 +77,7 @@ const props = defineProps({
   filterable: { type: Boolean, required: false, default: true },
 });
 var originTable = ref(null)
-function resetFilters() { originTable.value.clearFilters(); props.columns.forEach(c => c.filterOptionValue = null) }
+function resetFilters() { originTable.value.clearFilters(); columns.value.forEach(c => c.filterOptionValue = null) }
 function scrollTo(value) { originTable.value.scrollTo(value) }
 function getData() { return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData.map(({ __typename, ...o }) => o) }
 
