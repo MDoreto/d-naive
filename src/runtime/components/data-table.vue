@@ -1,6 +1,6 @@
 <template>
   <n-data-table
-    ref="mainTable"
+    ref="originTable"
     :data="items"
     :columns="cols"
     :pagination="page"
@@ -76,9 +76,10 @@ const props = defineProps({
   resizable: { type: Boolean, required: false, default: true },
   filterable: { type: Boolean, required: false, default: true },
 });
-function resetFilters() { myTable.value.clearFilters(); props.columns.forEach(c => c.filterOptionValue = null) }
-function scrollTo(value) { myTable.value.scrollTo(value) }
-function getData() { return myTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData.map(({ __typename, ...o }) => o) }
+var originTable = ref(null)
+function resetFilters() { originTable.value.clearFilters(); props.columns.forEach(c => c.filterOptionValue = null) }
+function scrollTo(value) { originTable.value.scrollTo(value) }
+function getData() { return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData.map(({ __typename, ...o }) => o) }
 
 defineExpose({
     resetFilters, scrollTo, getData
