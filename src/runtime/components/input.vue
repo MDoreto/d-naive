@@ -99,6 +99,7 @@ const props = defineProps({
   style: { required: false, type: [Object, String], default: "" },
   disableLabel: { required: false, type: Boolean, default: false },
   asyncProps: { required: false, type: [Function, Boolean], default: false },
+  prefix: { required: false, type: String, default: "" },
 });
 const attrs = useAttrs();
 const value = ref(
@@ -115,7 +116,7 @@ if (props.asyncProps) {
   });
 }
 const f = computed(() => {
-  const field = { placeholder: "", ...attrs, ...asyncPropsValue.value };
+  const field = { placeholder: "", ...attrs, ...asyncPropsValue.value, prefix:props.prefix };
   if (field.type == "select") {
     if (
       field.options &&

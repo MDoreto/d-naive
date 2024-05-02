@@ -1,35 +1,21 @@
 <template>
   <div>
-    <span
-      v-for="d in data"
-      :key="d.text"
-    >
-      <p
-        v-for="f in fields"
-        :key="f.key"
-      >
+    <span v-for="d in data" :key="d.text">
+      <p v-for="f in fields" :key="f.key">
         {{ f.title }} - {{ formatValue(d, f) }}
-      </p></span>{{ selected }}
-    <d-data-table
-      v-model="selected"
-      :data="data"
-      :columns="fields"
-      editable
-      selectable
-      return-object
-      :row-key="(row) => row.text"
-      selected-class="selected"
-    />{{ data[0] }}
-    <d-input
-      v-for="f in fields"
-      :key="f.key"
-      v-model="data[0][f.key]"
-      form
-      v-bind="f"
-    />
+      </p>
+    </span>{{ selected }}
+    <d-data-table v-model="selected" :data="data" :columns="fields" editable selectable return-object
+      :row-key="(row) => row.text" selected-class="selected" ref="table"/>{{ data[0] }}
+      <n-button @click="reset()">clear</n-button>
+    <d-input v-for="f in fields" :key="f.key" v-model="data[0][f.key]" form v-bind="f" />
   </div>
 </template>
 <script setup>
+const table = ref();
+const reset = () => {
+  table.value.resetFilters();
+};
 const selected = ref();
 const data = ref([
   {
@@ -41,6 +27,8 @@ const data = ref([
     percent: 45,
     int: 4,
     year: "2024",
+    number: 2.53432,
+    datetime: "2004-02-26 11:55:14.000"
   },
   {
     text: "Abd",
@@ -81,6 +69,7 @@ const fields = ref([
     key: "text",
   },
   { title: "Moeda", key: "currency", type: "number", prefix: "R$" },
+  { title: "Number", key: "number", type: "number", maxPrecision: 1 },
   { title: "Data", key: "date", type: "date" },
   { title: "Boolean", key: "bool", type: "bool" },
   {
@@ -99,6 +88,7 @@ const fields = ref([
     format: "yyyy",
     valueFormat: "yyyy",
   },
+  {title:"datetime", key:"datetime", type:"datetime", format:"dd/MM/yyyy HH:mm:ss.SSS"}
 ]);
 </script>
 <style scoped>
