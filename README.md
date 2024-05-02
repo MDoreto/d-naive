@@ -1,94 +1,88 @@
-<!--
-Get your module up and running quickly.
+# d-naive
 
-Find and replace all on all files (CMD+SHIFT+F):
-- Name: My Module
-- Package name: my-module
-- Description: My new Nuxt module
--->
+## Overview
 
-# My Module
+`d-naive` is a Vue library designed to enhance Naive UI components with additional functionalities for complex data handling and user input management. It includes a robust `DDataTable` component and a versatile `DInput` component, making it suitable for a wide range of applications.
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![License][license-src]][license-href]
-[![Nuxt][nuxt-src]][nuxt-href]
+## Installation
 
-My new Nuxt module for doing amazing things.
-
-- [✨ &nbsp;Release Notes](/CHANGELOG.md)
-<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
-<!-- - [📖 &nbsp;Documentation](https://example.com) -->
-
-## Features
-
-<!-- Highlight some of the features your module provide here -->
-- ⛰ &nbsp;Foo
-- 🚠 &nbsp;Bar
-- 🌲 &nbsp;Baz
-
-## Quick Setup
-
-1. Add `my-module` dependency to your project
+Install `d-naive` with npm:
 
 ```bash
-# Using pnpm
-pnpm add -D my-module
-
-# Using yarn
-yarn add --dev my-module
-
-# Using npm
-npm install --save-dev my-module
+npm install d-naive
 ```
+## Components
 
-2. Add `my-module` to the `modules` section of `nuxt.config.ts`
+### DataTable
 
-```js
-export default defineNuxtConfig({
-  modules: [
-    'my-module'
-  ]
-})
-```
+The `DataTable` component provides advanced features such as sorting, pagination, filtering, and cell editing.
 
-That's it! You can now use My Module in your Nuxt app ✨
+#### Props
 
-## Development
+- **data**: Array of data objects.
+- **columns**: Definitions of the table columns.
+- **pagination**: Configuration options for pagination.
+- **editable**: Boolean to enable editing directly in the table.
+- **scrollX**: Horizontal scrolling setting.
 
-```bash
-# Install dependencies
-npm install
+#### Events
 
-# Generate type stubs
-npm run dev:prepare
+- **update:expanded**: Emitted when the expanded rows are updated.
+- **put**: Emitted after confirming data modifications.
+- **delete**: Emitted when an item is deleted.
 
-# Develop with the playground
-npm run dev
+#### Methods
 
-# Build the playground
-npm run dev:build
+- **resetFilters()**: Clears all applied filters.
+- **scrollTo(value)**: Scrolls to the specified row.
+- **getData()**: Returns the current data displayed in the table.
 
-# Run ESLint
-npm run lint
+### DInput
 
-# Run Vitest
-npm run test
-npm run test:watch
+The `DInput` component manages various types of inputs including text, select, number, date, and checkbox, with options for validation and custom formatting.
 
-# Release new version
-npm run release
-```
+#### Props
 
-<!-- Badges -->
-[npm-version-src]: https://img.shields.io/npm/v/my-module/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/my-module
+- **modelValue**: The input's bound value.
+- **type**: The type of input (e.g., text, select, date).
+- **options**: Options for select inputs, if applicable.
 
-[npm-downloads-src]: https://img.shields.io/npm/dm/my-module.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npmjs.com/package/my-module
+#### Events
 
-[license-src]: https://img.shields.io/npm/l/my-module.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/my-module
+- **update:modelValue**: Emitted when the input value changes.
 
-[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
-[nuxt-href]: https://nuxt.com
+## Helper Functions
+
+### `formatValue(row, field)`
+
+Formats a value based on the specified field's type.
+
+### `getValue(row, field)`
+
+Retrieves a value from an object based on a dot-notated key string.
+
+## Usage Example
+
+Here is an example of using the `DDataTable` component in a Vue application:
+
+```vue
+<template>
+  <d-data-table :data="users" :columns="columns" />
+</template>
+
+<script>
+
+export default {
+
+  data() {
+    return {
+      users: [{ id: 1, name: 'John Doe', age: 30 }],
+      columns: [
+        { title: 'ID', key: 'id' },
+        { title: 'Name', key: 'name' },
+        { title: 'Age', key: 'age', sortable: true }
+      ]
+    };
+  }
+}
+</script>
