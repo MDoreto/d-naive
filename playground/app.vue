@@ -1,14 +1,37 @@
 <template>
   <div>
-    <span v-for="d in data" :key="d.text">
-      <p v-for="f in fields" :key="f.key">
+    <span
+      v-for="d in data"
+      :key="d.text"
+    >
+      <p
+        v-for="f in fields"
+        :key="f.key"
+      >
         {{ f.title }} - {{ formatValue(d, f) }}
       </p>
     </span>{{ selected }}
-    <d-data-table v-model="selected" :data="data" :columns="fields" editable selectable return-object
-      :row-key="(row) => row.text" selected-class="selected" ref="table"/>{{ data[0] }}
-      <n-button @click="reset()">clear</n-button>
-    <d-input v-for="f in fields" :key="f.key" v-model="data[0][f.key]" form v-bind="f" />
+    <d-data-table
+      ref="table"
+      v-model="selected"
+      :data="data"
+      :columns="fields"
+      editable
+      selectable
+      return-object
+      :row-key="(row) => row.text"
+      selected-class="selected"
+    />{{ data[0] }}
+    <n-button @click="reset()">
+      clear
+    </n-button>
+    <d-input
+      v-for="f in fields"
+      :key="f.key"
+      v-model="data[0][f.key]"
+      form
+      v-bind="f"
+    />
   </div>
 </template>
 <script setup>

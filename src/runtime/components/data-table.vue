@@ -1,7 +1,17 @@
 <template>
-  <n-data-table ref="originTable" :data="items" :columns="cols" :pagination="page" :row-class-name="getRowClass"
-    :row-props="rowProps" style="height: '100%'" :max-height="height"
-    :scroll-x="scrollX ? scrollX * columns.length : '100%'" v-bind="$attrs" @update:expanded-row-keys="expanded" />
+  <n-data-table
+    ref="originTable"
+    :data="items"
+    :columns="cols"
+    :pagination="page"
+    :row-class-name="getRowClass"
+    :row-props="rowProps"
+    style="height: '100%'"
+    :max-height="height"
+    :scroll-x="scrollX ? scrollX * columns.length : '100%'"
+    v-bind="$attrs"
+    @update:expanded-row-keys="expanded"
+  />
 </template>
 <script setup>
 import { Icon } from "#components";
@@ -365,7 +375,7 @@ const processColumns = () => {
         field.filterOptions = getOptions(null);
         field.filterOptionValues = field.filterOptionValues || [];
         field.renderFilterMenu = ({ hide }) => {
-          var options = []
+          const options = []
           field.filterOptions.forEach((o) => {
             options.push(h(NCheckbox, {
               label: o,
