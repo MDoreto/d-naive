@@ -10,8 +10,12 @@ export const formatValue = (row, field) => {
   if (!value) return ''
   switch (t) {
     case 'number': {
-      const minPrecision = field.minPrecision || field.precision || 2
-      const maxPrecision = field.maxPrecision || field.precision || 2
+      var minPrecision = field.minPrecision || field.precision
+      var maxPrecision = field.maxPrecision || field.precision
+      if (field.precision == 0) {
+        minPrecision = 0
+        maxPrecision = 0
+      }
       value = value.toLocaleString("pt-br", {
         minimumFractionDigits: minPrecision,
         maximumFractionDigits: maxPrecision,
@@ -23,6 +27,9 @@ export const formatValue = (row, field) => {
     case "date":
       if (!value) return ""
       return new Date(value + " GMT-0300").toLocaleDateString("pt-br", { ...field })
+    case "datetime":
+      if (!value) return ""
+      return new Date(value + " GMT-0300").toLocaleString("pt-br", { ...field })
     default:
       return value
   }
