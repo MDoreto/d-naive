@@ -7,7 +7,7 @@ export const formatValue = (row, field) => {
   if (typeof field === 'object')
     t = field.type
   else t = field
-  if (!value) return ''
+  if (!value && value != 0) return ''
   switch (t) {
     case 'number': {
       var minPrecision = field.minPrecision || field.precision
