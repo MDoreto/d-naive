@@ -380,7 +380,7 @@ const processColumns = () => {
           const f = field.filterOptionValue;
           return (
             !f ||
-            ((!f.search || v?.toLowerCase().includes(f.search.toLowerCase())) &&
+            ((!f.search || !field.filterOptions?.length>0|| v?.toLowerCase().includes(f.search.toLowerCase())) &&
               (!f.options.length > 0 || !f.options.includes(v)))
           );
         };
