@@ -5,6 +5,7 @@
         {{ f.title }} - {{ formatValue(d, f) }}
       </p> </span
     >{{ selected }} -->
+    <n-button @click="filter()"> filter </n-button>
     <d-data-table
       ref="table"
       v-model="selected"
@@ -16,9 +17,7 @@
       :row-key="(row) => row.id"
       selected-class="selected"
     />{{ data[0] }}
-    <n-button @click="reset()">
-      clear
-    </n-button>
+    <n-button @click="reset()"> clear </n-button>
     <d-input
       v-for="f in fields"
       :key="f.key"
@@ -32,6 +31,10 @@
 const table = ref();
 const reset = () => {
   table.value.resetFilters();
+};
+const filter = () => {
+table.value.cols[1].setFilter("1616")
+
 };
 const selected = ref();
 const data = ref([
@@ -101,13 +104,14 @@ for (let i = 0; i < 10000; i++) {
 }
 
 const fields = ref([
+  { type: "selection" },
   { title: "ID", key: "id" },
   {
     title: "Texto",
     key: "text",
   },
   { title: "Moeda", key: "currency", type: "number", prefix: "R$" },
-  { title: "Number", key: "number", type: "number", maxPrecision: 1 },
+  { title: "Number", key: "number", type: "number" },
   { title: "Data", key: "date", type: "date" },
   { title: "Boolean", key: "bool", type: "bool" },
   {
