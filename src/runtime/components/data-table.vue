@@ -47,7 +47,7 @@ const props = defineProps({
   modelValue: {
     required: false,
     type: [Object, Number, String],
-    default: () => { },
+    default: () => {},
   },
   selectable: {
     type: Boolean,
@@ -92,18 +92,20 @@ function getData() {
     ({ __typename, ...o }) => o
   );
 }
+const cols = ref([]);
 
 defineExpose({
   resetFilters,
   scrollTo,
   getData,
+  cols,
 });
 const items = computed(() => {
   const temp = !props.data
     ? []
     : props.data.map((item) => {
-      return { ...item };
-    });
+        return { ...item };
+      });
   if (editedRow.value && editedIndex.value < 0) temp.unshift(editedRow.value);
   return temp;
 });
@@ -176,11 +178,11 @@ function getRowClass(rowData, index) {
   }
   return classes;
 }
-const cols = ref([]);
 const processColumns = () => {
   const columns = ref(props.columns.map((c) => ({ ...c })));
   columns.value.forEach((field) => {
     if (props.sortable && field.sortable != false) field.sorter = "default";
+    if (field.type == "selection") field.sorter = undefined;
     if (field.resizable != false) field.resizable = props.resizable;
     if (!field.render)
       field.render = (row, index) => {
@@ -233,12 +235,12 @@ const processColumns = () => {
             .map((o) => {
               return o
                 ? {
-                  label:
-                    typeof o === "string"
-                      ? o.charAt(0).toUpperCase() + o.slice(1)
-                      : "N/A",
-                  value: o,
-                }
+                    label:
+                      typeof o === "string"
+                        ? o.charAt(0).toUpperCase() + o.slice(1)
+                        : "N/A",
+                    value: o,
+                  }
                 : {};
             });
         else if (temp.length > 0 && typeof temp[0] != "object")
@@ -380,18 +382,28 @@ const processColumns = () => {
           const f = field.filterOptionValue;
           return (
             !f ||
-            ((!f.search || !field.filterOptions?.length>0|| v?.toLowerCase().includes(f.search.toLowerCase())) &&
+            ((!f.search ||
+              !field.filterOptions?.length > 0 ||
+              v?.toLowerCase().includes(f.search.toLowerCase())) &&
               (!f.options.length > 0 || !f.options.includes(v)))
           );
         };
-        const options = [
-          ...new Set(items.value.map((o) => getValue(o, field))),
-        ].filter(o => o).sort();
+        const options = [...new Set(items.value.map((o) => getValue(o, field)))]
+          .filter((o) => o)
+          .sort();
         const getOptions = (value) =>
           options.filter(
             (o) => !value || !o || o.toLowerCase().includes(value.toLowerCase())
           );
-
+        field.setFilter = (text) => {
+          field.filterOptions = getOptions(text);
+          field.filterOptionValue = {
+            search: text,
+            options: field.filterOptionValue?.options || [],
+          };
+          if (!text && !field.filterOptionValue?.options.length > 0)
+            field.filterOptionValue = null;
+        };
         field.filterOptions = getOptions(null);
         field.renderFilterMenu = ({ hide }) => {
           return h(
@@ -401,18 +413,13 @@ const processColumns = () => {
               default: () => [
                 h(NInput, {
                   placeholder: "",
+                  autofocus: true,
                   value: field.filterOptionValue?.search,
                   onKeyup: (key) => {
-                    if (key.code == "Enter" || key.code=='Escape') hide();
+                    if (key.code == "Enter" || key.code == "Escape") hide();
                   },
                   onInput: (text) => {
-                    field.filterOptions = getOptions(text);
-                    field.filterOptionValue = {
-                      search: text,
-                      options: field.filterOptionValue?.options || [],
-                    };
-                    if (!text && !field.filterOptionValue?.options.length > 0)
-                      field.filterOptionValue = null;
+                    field.setFilter(text);
                   },
                 }),
                 h(
@@ -506,123 +513,126 @@ const processColumns = () => {
       render: (row, index) => {
         return editedIndex.value == index || row.new
           ? h(
-            NSpace,
-            { wrap: false },
-            {
-              default: () => [
-                h(
-                  NButton,
-                  {
-                    circle: true,
-                    strong: true,
-                    tertiary: true,
-                    type: "success",
-                    onClick: () => {
-                      dialog.warning({
-                        title: `Confirmação de ${row.new ? "Inclusão" : "Alteração"
+              NSpace,
+              { wrap: false },
+              {
+                default: () => [
+                  h(
+                    NButton,
+                    {
+                      circle: true,
+                      strong: true,
+                      tertiary: true,
+                      type: "success",
+                      onClick: () => {
+                        dialog.warning({
+                          title: `Confirmação de ${
+                            row.new ? "Inclusão" : "Alteração"
                           }`,
-                        content: `Tem certeza que deseja efetuar ${row.new ? "a Inclusão" : "as alterações"
+                          content: `Tem certeza que deseja efetuar ${
+                            row.new ? "a Inclusão" : "as alterações"
                           }?`,
-                        positiveText: "SIM",
-                        negativeText: "NÃO",
-                        onPositiveClick: () => {
-                          message.success(
-                            `Item ${row.new ? "incluido" : "alterado"
-                            } com sucesso`
-                          );
-                          emit("put", editedRow.value);
-                          editedIndex.value = null;
-                          editedRow.value = -1;
-                        },
-                      });
+                          positiveText: "SIM",
+                          negativeText: "NÃO",
+                          onPositiveClick: () => {
+                            message.success(
+                              `Item ${
+                                row.new ? "incluido" : "alterado"
+                              } com sucesso`
+                            );
+                            emit("put", editedRow.value);
+                            editedIndex.value = null;
+                            editedRow.value = -1;
+                          },
+                        });
+                      },
                     },
-                  },
-                  {
-                    icon: () =>
-                      h(Icon, {
-                        name: "mdi:success-bold",
-                        color: "green",
-                        size: "22",
-                      }),
-                  }
-                ),
-                h(
-                  NButton,
-                  {
-                    circle: true,
-                    strong: true,
-                    tertiary: true,
-                    type: "warning",
-                    onClick: () => {
-                      editedIndex.value = -1;
-                      editedRow.value = null;
+                    {
+                      icon: () =>
+                        h(Icon, {
+                          name: "mdi:success-bold",
+                          color: "green",
+                          size: "22",
+                        }),
+                    }
+                  ),
+                  h(
+                    NButton,
+                    {
+                      circle: true,
+                      strong: true,
+                      tertiary: true,
+                      type: "warning",
+                      onClick: () => {
+                        editedIndex.value = -1;
+                        editedRow.value = null;
+                      },
+                      class: "mx-n2",
                     },
-                    class: "mx-n2",
-                  },
-                  {
-                    icon: () =>
-                      h(Icon, {
-                        name: "mdi:cancel-bold",
-                        color: "orange",
-                        size: "22",
-                      }),
-                  }
-                ),
-                h(
-                  NButton,
-                  {
-                    circle: true,
-                    strong: true,
-                    tertiary: true,
-                    type: "error",
-                    onClick: () => {
-                      dialog.error({
-                        title: "Confirmação de Exclusão",
-                        content: "Tem certeza que deseja deletar este item?",
-                        positiveText: "SIM",
-                        negativeText: "NÃO",
-                        onPositiveClick: () => {
-                          message.success("Item removido com sucesso");
-                          emit("delete", editedRow.value);
-                          editedIndex.value = -1;
-                          editedRow.value = null;
-                        },
-                      });
+                    {
+                      icon: () =>
+                        h(Icon, {
+                          name: "mdi:cancel-bold",
+                          color: "orange",
+                          size: "22",
+                        }),
+                    }
+                  ),
+                  h(
+                    NButton,
+                    {
+                      circle: true,
+                      strong: true,
+                      tertiary: true,
+                      type: "error",
+                      onClick: () => {
+                        dialog.error({
+                          title: "Confirmação de Exclusão",
+                          content: "Tem certeza que deseja deletar este item?",
+                          positiveText: "SIM",
+                          negativeText: "NÃO",
+                          onPositiveClick: () => {
+                            message.success("Item removido com sucesso");
+                            emit("delete", editedRow.value);
+                            editedIndex.value = -1;
+                            editedRow.value = null;
+                          },
+                        });
+                      },
                     },
-                  },
-                  {
-                    icon: () =>
-                      h(Icon, {
-                        name: "ic:baseline-delete",
-                        color: "red",
-                        size: "22",
-                      }),
-                  }
-                ),
-              ],
-            }
-          )
+                    {
+                      icon: () =>
+                        h(Icon, {
+                          name: "ic:baseline-delete",
+                          color: "red",
+                          size: "22",
+                        }),
+                    }
+                  ),
+                ],
+              }
+            )
           : h(
-            NButton,
-            {
-              circle: true,
-              strong: true,
-              tertiary: true,
-              type: "info",
-              onClick: () => {
-                editedIndex.value = index;
-                editedRow.value = ref(structuredClone(toRaw(row))).value;
+              NButton,
+              {
+                circle: true,
+                strong: true,
+                tertiary: true,
+                type: "info",
+                onClick: () => {
+                  editedIndex.value = index;
+                  editedRow.value = ref(structuredClone(toRaw(row))).value;
+                },
               },
-            },
-            {
-              icon: () =>
-                h(Icon, {
-                  name: "material-symbols:edit-outline",
-                  color: "blue",
-                  size: "20",
-                }),
-            }
-          );
+              {
+                icon: () =>
+                  h(Icon, {
+                    name: "material-symbols:edit-outline",
+                    color: "blue",
+                    size: "20",
+                  }),
+              }
+            );
       },
     };
     if (columns.value.some((f) => f.key == "actions")) columns.value.splice(-1);

@@ -1,4 +1,8 @@
+import { useNuxtApp } from '#app';
+
 export const formatValue = (row, field) => {
+  const nuxtApp = useNuxtApp();
+  const defaultOptions = nuxtApp.$dNaive
   var value = null
   var t = null
   if (typeof row === 'object')
@@ -10,8 +14,18 @@ export const formatValue = (row, field) => {
   if (!value && value != 0) return ''
   switch (t) {
     case 'number': {
-      var minPrecision = field.minPrecision || field.precision
-      var maxPrecision = field.maxPrecision || field.precision
+
+      function getValidValue(...values) {
+        for (let value of values) {
+          if (value || value == 0) {
+            return value;
+          }
+        }
+        return undefined;
+      }
+
+      var minPrecision = getValidValue(field.minPrecision, defaultOptions.minPrecision, field.precision, defaultOptions.precision);
+      var maxPrecision = getValidValue(field.maxPrecision, defaultOptions.maxPrecision, field.precision, defaultOptions.precision);
       if (field.precision == 0) {
         minPrecision = 0
         maxPrecision = 0
@@ -36,10 +50,11 @@ export const formatValue = (row, field) => {
 }
 export const getValue = (row, field) => {
   var key = null
-  if (!row || !field) return ''
+  if (!row || !field) return undefined
   if (typeof field === 'object')
     key = field.key
   else key = field
+  if (!key) return undefined
   var steps = key.split(".")
   var v = row
   var step = 0
