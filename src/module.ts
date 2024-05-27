@@ -14,7 +14,8 @@ export default defineNuxtModule<ModuleOptions>({
     const { resolve } = createResolver(import.meta.url)
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
 
-    const plugin = `export default defineNuxtPlugin((nuxtApp) => {
+    const plugin = `import { defineNuxtPlugin } from '#imports';
+      export default defineNuxtPlugin((nuxtApp) => {
        nuxtApp.provide('dNaive', ${JSON.stringify(options)}) 
     })`
 
