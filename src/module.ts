@@ -30,6 +30,6 @@ export default defineNuxtModule<ModuleOptions>({
         'getValue',
       ].map(n => ({ name: n, from: resolve('runtime/utils') })),
     ])
-    addPluginTemplate({ getContents: () => plugin, write:true, dst: resolve("./runtime/observer.mjs"), filename: "plugin.mjs" })
+    addPluginTemplate({ getContents: () => plugin, filename: "plugin.mjs" })
   }
 })
