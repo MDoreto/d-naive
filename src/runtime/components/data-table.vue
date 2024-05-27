@@ -88,9 +88,7 @@ function scrollTo(value) {
   originTable.value.scrollTo(value);
 }
 function getData() {
-  return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData.map(
-    ({ __typename, ...o }) => o
-  );
+  return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData
 }
 const cols = ref([]);
 
@@ -431,7 +429,7 @@ const processColumns = () => {
                     itemResizable: true,
                   },
                   {
-                    default: ({ item, index }) =>
+                    default: ({ item }) =>
                       h(NCheckbox, {
                         key: item,
                         label: item,

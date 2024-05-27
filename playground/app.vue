@@ -5,7 +5,9 @@
         {{ f.title }} - {{ formatValue(d, f) }}
       </p> </span
     >{{ selected }} -->
-    <n-button @click="filter()"> filter </n-button>
+    <n-button @click="filter()">
+      filter
+    </n-button>
     <d-data-table
       ref="table"
       v-model="selected"
@@ -17,7 +19,9 @@
       :row-key="(row) => row.id"
       selected-class="selected"
     />{{ data[0] }}
-    <n-button @click="reset()"> clear </n-button>
+    <n-button @click="reset()">
+      clear
+    </n-button>
     <d-input
       v-for="f in fields"
       :key="f.key"
