@@ -219,11 +219,12 @@ const processColumns = () => {
     if (!field.filter && props.filterable && field.filter != false) {
       if (field.type == "bool") {
         field.filterOptions = [
-          { label: "Y", value: true },
-          { label: "N", value: false },
+          { label: "Y", value: "true" },
+          { label: "N", value: "false" },
         ];
         field.filter = (value, row) => {
-          return getValue(row, field) == value;
+          var valBool = value =="true"
+          return getValue(row, field) == valBool;
         };
       } else if (field.type == "select") {
         let temp = field.options;
