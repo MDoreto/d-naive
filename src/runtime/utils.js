@@ -1,5 +1,14 @@
 import { useNuxtApp } from '#app';
 
+function getValidValue(...values) {
+  for (let value of values) {
+    if (value || value == 0) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
 export const formatValue = (row, field) => {
   const nuxtApp = useNuxtApp();
   const defaultOptions = nuxtApp.$dNaive
@@ -14,16 +23,6 @@ export const formatValue = (row, field) => {
   if (!value && value != 0) return ''
   switch (t) {
     case 'number': {
-
-      function getValidValue(...values) {
-        for (let value of values) {
-          if (value || value == 0) {
-            return value;
-          }
-        }
-        return undefined;
-      }
-
       var minPrecision = getValidValue(field.minPrecision, defaultOptions.minPrecision, field.precision, defaultOptions.precision);
       var maxPrecision = getValidValue(field.maxPrecision, defaultOptions.maxPrecision, field.precision, defaultOptions.precision);
       if (field.precision == 0) {
