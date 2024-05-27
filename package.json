@@ -1,7 +1,7 @@
 {
   "name": "d-naive",
   "version": "1.4.0",
-  "description": "My new Nuxt module",
+  "description": "Vue library designed to enhance Naive UI components with additional functionalities for complex data handling and user input management",
   "repository": "mdoreto/d-naive",
   "license": "MIT",
   "type": "module",
