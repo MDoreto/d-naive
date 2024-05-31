@@ -223,7 +223,7 @@ const processColumns = () => {
           { label: "N", value: "false" },
         ];
         field.filter = (value, row) => {
-          var valBool = value =="true"
+          const valBool = value =="true"
           return getValue(row, field) == valBool;
         };
       } else if (field.type == "select") {
