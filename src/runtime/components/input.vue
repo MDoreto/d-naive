@@ -3,17 +3,17 @@
     <span v-if="!disableLabel">{{ f.label ? f.label : f.title }}</span>
     <n-select
       v-if="f.type == 'select'"
-      v-bind="f"
       v-model:value="value"
       filterable
       clearable
       :loading="loading"
+      v-bind="f"
     />
     <n-input-number
       v-else-if="['number'].indexOf(f.type) >= 0"
-      v-bind="f"
       v-model:value="value"
       clearable
+      v-bind="f"
     >
       <template
         v-if="f.prefix2"
