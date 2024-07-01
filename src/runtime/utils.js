@@ -23,6 +23,8 @@ export const formatValue = (row, field) => {
   if (!value && value != 0) return ''
   switch (t) {
     case 'number': {
+
+      if (field.noFormat) return value
       var minPrecision = getValidValue(field.minPrecision, defaultOptions.minPrecision, field.precision, defaultOptions.precision);
       var maxPrecision = getValidValue(field.maxPrecision, defaultOptions.maxPrecision, field.precision, defaultOptions.precision);
       if (field.precision == 0) {

@@ -43,7 +43,7 @@ table.value.cols[1].setFilter("1616")
 const selected = ref();
 const data = ref([
   {
-    id: "9999992",
+    id: 9999992,
     text: "Texto",
     currency: 2343.56,
     date: "2022-12-12",
@@ -57,7 +57,7 @@ const data = ref([
   },
   {
     id: "9999999",
-    text: "Abd",
+    text: null,
     currency: 2343.56,
     date: "2032-12-12",
     bool: false,
@@ -80,7 +80,7 @@ const data = ref([
   },
   {
     id: "9999989999",
-    text: "cccccccccccc",
+    text: undefined,
     currency: 2343.56,
     date: "2022-12-12",
     bool: true,
@@ -109,7 +109,7 @@ for (let i = 0; i < 10000; i++) {
 
 const fields = ref([
   { type: "selection" },
-  { title: "ID", key: "id" },
+  { title: "ID", key: "id", type:"number", onUpdateFilters: (value) => console.log(value),noFormat: true},
   {
     title: "Texto",
     key: "text",

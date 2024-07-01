@@ -88,7 +88,7 @@ function scrollTo(value) {
   originTable.value.scrollTo(value);
 }
 function getData() {
-  return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData
+  return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData;
 }
 const cols = ref([]);
 
@@ -223,7 +223,7 @@ const processColumns = () => {
           { label: "N", value: "false" },
         ];
         field.filter = (value, row) => {
-          const valBool = value =="true"
+          const valBool = value == "true";
           return getValue(row, field) == valBool;
         };
       } else if (field.type == "select") {
@@ -278,6 +278,8 @@ const processColumns = () => {
                   clearable: true,
                   onConfirm: ([min, max]) => {
                     field.filterOptionValue = [min, max];
+                    if (field.onUpdateFilters)
+                      field.onUpdateFilters(field.filterOptionValue);
                     hide();
                   },
                 }),
@@ -287,6 +289,8 @@ const processColumns = () => {
                     size: "tiny",
                     onClick: () => {
                       field.filterOptionValue = null;
+                      if (field.onUpdateFilters)
+                        field.onUpdateFilters(field.filterOptionValue);
                       hide();
                     },
                   },
@@ -333,6 +337,8 @@ const processColumns = () => {
                       field.filterOptionValue[1]
                     )
                       field.filterOptionValue = null;
+                    if (field.onUpdateFilters)
+                      field.onUpdateFilters(field.filterOptionValue);
                   },
                 }),
                 h(NInputNumber, {
@@ -352,6 +358,8 @@ const processColumns = () => {
                       field.filterOptionValue[1]
                     )
                       field.filterOptionValue = null;
+                    if (field.onUpdateFilters)
+                      field.onUpdateFilters(field.filterOptionValue);
                   },
                 }),
                 h(
@@ -360,6 +368,8 @@ const processColumns = () => {
                     size: "tiny",
                     onClick: () => {
                       field.filterOptionValue = null;
+                      if (field.onUpdateFilters)
+                        field.onUpdateFilters(field.filterOptionValue);
                       hide();
                     },
                   },
@@ -377,7 +387,8 @@ const processColumns = () => {
         };
         field.filterMode = "and";
         field.filter = (value, row) => {
-          const v = getValue(row, field);
+          var v = getValue(row, field);
+          if (v === undefined || v === null || v == "") v = "(blank)";
           const f = field.filterOptionValue;
           return (
             !f ||
@@ -387,13 +398,23 @@ const processColumns = () => {
               (!f.options.length > 0 || !f.options.includes(v)))
           );
         };
-        const options = [...new Set(items.value.map((o) => getValue(o, field)))]
-          .filter((o) => o)
-          .sort();
+        var options = [
+          ...new Set(items.value.map((o) => getValue(o, field))),
+        ].sort();
+        if (options.some((o) => o == undefined || o == null || o == ""))
+          options.unshift("(blank)");
+        options = options.filter((o) => o);
         const getOptions = (value) =>
-          options.filter(
-            (o) => !value || !o || o.toLowerCase().includes(value.toLowerCase())
-          );
+          options.filter((o) => {
+            var temp = o;
+            if (temp === undefined || temp === null || temp == "")
+              temp = "(blank)";
+            return (
+              !value ||
+              !temp ||
+              temp.toLowerCase().includes(value.toLowerCase())
+            );
+          });
         field.setFilter = (text) => {
           field.filterOptions = getOptions(text);
           field.filterOptionValue = {
@@ -419,6 +440,8 @@ const processColumns = () => {
                   },
                   onInput: (text) => {
                     field.setFilter(text);
+                    if (field.onUpdateFilters)
+                      field.onUpdateFilters(field.filterOptionValue);
                   },
                 }),
                 h(
@@ -447,7 +470,7 @@ const processColumns = () => {
                               1
                             );
                             if (
-                              !field.filterOptionValue?.options.search &&
+                              !field.filterOptionValue?.search &&
                               !field.filterOptionValue?.options.length > 0
                             )
                               field.filterOptionValue = null;
@@ -459,6 +482,8 @@ const processColumns = () => {
                               };
                             field.filterOptionValue.options.push(item);
                           }
+                          if (field.onUpdateFilters)
+                            field.onUpdateFilters(field.filterOptionValue);
                         },
                       }),
                   }
@@ -470,6 +495,8 @@ const processColumns = () => {
                     onClick: () => {
                       field.filterOptionValue = null;
                       field.filterOptions = getOptions();
+                      if (field.onUpdateFilters)
+                        field.onUpdateFilters(field.filterOptionValue);
                       hide();
                     },
                   },
