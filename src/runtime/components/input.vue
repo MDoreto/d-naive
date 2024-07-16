@@ -1,6 +1,8 @@
 <template>
   <div :style="style">
-    <p v-if="!disableLabel">{{ f.label ? f.label : f.title }}</p>
+    <p v-if="!disableLabel">
+      {{ f.label ? f.label : f.title }}
+    </p>
     <n-select
       v-if="f.type == 'select'"
       v-model:value="value"

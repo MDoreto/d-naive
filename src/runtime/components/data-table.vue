@@ -138,7 +138,7 @@ const emit = defineEmits([
 ]);
 const rowProps = (rowData, rowIndex) => ({
   onClick: () => {
-    if (props.selectable) {
+    if (props.selectable && rowData.selectable != false) {
       let key = null;
       if (attrs["row-key"]) {
         key = attrs["row-key"](rowData);
@@ -387,7 +387,7 @@ const processColumns = () => {
         };
         field.filterMode = "and";
         field.filter = (value, row) => {
-          var v = getValue(row, field);
+          let v = getValue(row, field);
           if (v === undefined || v === null || v == "") v = "(blank)";
           const f = field.filterOptionValue;
           return (
@@ -398,7 +398,7 @@ const processColumns = () => {
               (!f.options.length > 0 || !f.options.includes(v)))
           );
         };
-        var options = [
+        let options = [
           ...new Set(items.value.map((o) => getValue(o, field))),
         ].sort();
         if (options.some((o) => o == undefined || o == null || o == ""))
@@ -406,7 +406,7 @@ const processColumns = () => {
         options = options.filter((o) => o);
         const getOptions = (value) =>
           options.filter((o) => {
-            var temp = o;
+            let temp = o;
             if (temp === undefined || temp === null || temp == "")
               temp = "(blank)";
             return (
@@ -672,6 +672,17 @@ watch(
   () => props.columns,
   () => processColumns()
 );
+
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (!newValue) {
+      selectedItem.value = null
+      selectedKey.value = null
+    }
+  }
+)
+
 watch(
   () => props.data,
   (newValue) => {
