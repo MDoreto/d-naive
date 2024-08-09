@@ -37,7 +37,7 @@
       v-model:checked="value"
     />
     <n-date-picker
-      v-else-if="['date', 'month', 'daterange', 'year'].indexOf(f.type) >= 0"
+      v-else-if="['date', 'month', 'daterange', 'year','monthrange','datetime','datetimerange','yearrange','quarter','quarterrange','week'].indexOf(f.type) >= 0"
       v-model:formatted-value="value"
       value-format="yyyy-MM-dd"
       :format="'dd/MM/yyyy'"
