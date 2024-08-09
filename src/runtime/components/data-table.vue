@@ -363,17 +363,37 @@ const processColumns = () => {
                   },
                 }),
                 h(
-                  NButton,
+                  NSpace,
+                  {},
                   {
-                    size: "tiny",
-                    onClick: () => {
-                      field.filterOptionValue = null;
-                      if (field.onUpdateFilters)
-                        field.onUpdateFilters(field.filterOptionValue);
-                      hide();
-                    },
-                  },
-                  { default: () => "Clear" }
+                    default: () => [
+                      h(
+                        NButton,
+                        {
+                          size: "tiny",
+                          color: "green",
+                          class: "text-white",
+                          onClick: () => {
+                            hide();
+                          },
+                        },
+                        { default: () => "Ok" }
+                      ),
+                      h(
+                        NButton,
+                        {
+                          size: "tiny",
+                          onClick: () => {
+                            field.filterOptionValue = null;
+                            if (field.onUpdateFilters)
+                              field.onUpdateFilters(field.filterOptionValue);
+                            hide();
+                          },
+                        },
+                        { default: () => "Clear" }
+                      ),
+                    ],
+                  }
                 ),
               ],
             }
@@ -489,18 +509,38 @@ const processColumns = () => {
                   }
                 ),
                 h(
-                  NButton,
+                  NSpace,
+                  {},
                   {
-                    size: "tiny",
-                    onClick: () => {
-                      field.filterOptionValue = null;
-                      field.filterOptions = getOptions();
-                      if (field.onUpdateFilters)
-                        field.onUpdateFilters(field.filterOptionValue);
-                      hide();
-                    },
-                  },
-                  { default: () => "Clear" }
+                    default: () => [
+                      h(
+                        NButton,
+                        {
+                          size: "tiny",
+                          type: "primary",
+                          class: "text-white",
+                          onClick: () => {
+                            hide();
+                          },
+                        },
+                        { default: () => "Ok" }
+                      ),
+                      h(
+                        NButton,
+                        {
+                          size: "tiny",
+                          onClick: () => {
+                            field.filterOptionValue = null;
+                            field.filterOptions = getOptions();
+                            if (field.onUpdateFilters)
+                              field.onUpdateFilters(field.filterOptionValue);
+                            hide();
+                          },
+                        },
+                        { default: () => "Clear" }
+                      ),
+                    ],
+                  }
                 ),
               ],
             }
@@ -677,11 +717,11 @@ watch(
   () => props.modelValue,
   (newValue) => {
     if (!newValue) {
-      selectedItem.value = null
-      selectedKey.value = null
+      selectedItem.value = null;
+      selectedKey.value = null;
     }
   }
-)
+);
 
 watch(
   () => props.data,
