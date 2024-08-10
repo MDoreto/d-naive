@@ -78,7 +78,10 @@ const originTable = ref(null);
 
 function resetFilters() {
   sorterList.value = [];
-  processColumns();
+  cols.value.forEach((c) => {
+    if (c.filterOptionValue) c.filterOptionValue = null;
+    c.sortOrder = null;
+  });
 }
 function scrollTo(value) {
   originTable.value.scrollTo(value);
@@ -186,7 +189,7 @@ const rowProps = (rowData, rowIndex) => ({
   },
 });
 
-watch(()=>[...sorterList.value], ()=> {
+watch(() => [...sorterList.value], () => {
   cols.value.forEach((field) => {
     var sort = sorterList.value.find((s) => s.key == field.key);
     if (sort) {
@@ -227,7 +230,12 @@ function getRowClass(rowData, index) {
 }
 const processColumns = () => {
   // Itere sobre os elementos e remova a classe de cada um deles
-
+  var filters = {}
+  cols.value.forEach((c) => {
+    if (c.filterOptionValue) {
+      filters[c.key] = c.filterOptionValue
+    }
+  });
   const columns = ref(props.columns.map((c) => ({ ...c })));
   columns.value.forEach((field, idx) => {
     if (props.sortable && field.sortable != false) field.sortable = true;
@@ -615,13 +623,13 @@ const processColumns = () => {
           justify: "space-between",
           align: "center",
           onMousedown: (e) => {
-            if(field.draggable)
-            isDragging = field.key;
+            if (field.draggable)
+              isDragging = field.key;
           },
           onMouseup: (e) => {
-            if(field.draggable)
+            if (field.draggable)
 
-            isDragging = null;
+              isDragging = null;
           },
           onMouseover: (e) => {
             if (props.draggable && isDragging && isDragging != field.key) {
@@ -635,69 +643,73 @@ const processColumns = () => {
         },
         {
           default: () => [
-            h("div", field.label),field.sortable?
-            h(
-              NBadge,
-              {
-                style: "height: 10px; font-size: 10px;",
-                color: "grey",
-                offset: [0, -10],
-                value: field.sortOrder ?
-                  sorterList.value.length -
-                  sorterList.value.findIndex((s) => s.key == field.key) : 0,
-              },
-              {
-                default: () => [
-                  h(
-                    NButton,
-                    {
-                      circle: true,
-                      text: true,
-                      size: "tiny",
-                      onClick: () => {
-                        if (!field.sortOrder) field.sortOrder = "ascend";
-                        else if (field.sortOrder === "ascend")
-                          field.sortOrder = "descend";
-                        else if (field.sortOrder === "descend")
-                          field.sortOrder = false;
-                        if (field.sortOrder) {
-                          var item = sorterList.value.find(
-                            (s) => s.key == field.key
-                          );
-                          if (item) item.order = field.sortOrder;
-                          else
-                            sorterList.value.unshift({
-                              key: field.key,
-                              order: field.sortOrder,
-                              type: field.type,
-                            });
-                        } else
-                          sorterList.value = sorterList.value.filter(
-                            (s) => s.key != field.key
-                          );
+            h("div", field.label), field.sortable ?
+              h(
+                NBadge,
+                {
+                  style: "height: 10px; font-size: 10px;",
+                  color: "grey",
+                  offset: [0, -10],
+                  value: field.sortOrder ?
+                    sorterList.value.length -
+                    sorterList.value.findIndex((s) => s.key == field.key) : 0,
+                },
+                {
+                  default: () => [
+                    h(
+                      NButton,
+                      {
+                        circle: true,
+                        text: true,
+                        size: "tiny",
+                        onClick: () => {
+                          if (!field.sortOrder) field.sortOrder = "ascend";
+                          else if (field.sortOrder === "ascend")
+                            field.sortOrder = "descend";
+                          else if (field.sortOrder === "descend")
+                            field.sortOrder = false;
+                          if (field.sortOrder) {
+                            var item = sorterList.value.find(
+                              (s) => s.key == field.key
+                            );
+                            if (item) item.order = field.sortOrder;
+                            else
+                              sorterList.value.unshift({
+                                key: field.key,
+                                order: field.sortOrder,
+                                type: field.type,
+                              });
+                          } else
+                            sorterList.value = sorterList.value.filter(
+                              (s) => s.key != field.key
+                            );
+                        },
                       },
-                    },
-                    {
-                      icon: () =>
-                        h(Icon, {
-                          name: "bi:arrow-down",
-                          color: field.sortOrder
-                            ? themeVars.value.primaryColor
-                            : "grey",
-                          style:
-                            field.sortOrder === "descend"
-                              ? "transform: rotate(180deg);"
-                              : "",
-                        }),
-                    }
-                  ),
-                ],
-              }
-            ):null,
+                      {
+                        icon: () =>
+                          h(Icon, {
+                            name: "bi:arrow-down",
+                            color: field.sortOrder
+                              ? themeVars.value.primaryColor
+                              : "grey",
+                            style:
+                              field.sortOrder === "descend"
+                                ? "transform: rotate(180deg);"
+                                : "",
+                          }),
+                      }
+                    ),
+                  ],
+                }
+              ) : null,
           ],
         }
       );
     };
+    if (field.setFilter && filters[field.key]?.search) {
+      field.setFilter(filters[field.key].search);
+    }
+    if (filters[field.key]) field.filterOptionValue = filters[field.key];
   });
   if (props.editable) {
     const col = {
