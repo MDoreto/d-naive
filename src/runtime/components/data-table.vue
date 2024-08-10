@@ -1,17 +1,7 @@
 <template>
-  <n-data-table
-    ref="originTable"
-    :data="items"
-    :columns="cols"
-    :pagination="page"
-    :row-class-name="getRowClass"
-    :row-props="rowProps"
-    style="height: '100%'"
-    :max-height="height"
-    :scroll-x="scrollX ? scrollX * columns.length : '100%'"
-    v-bind="$attrs"
-    @update:expanded-row-keys="expanded"
-  />
+  <n-data-table ref="originTable" :data="items" :columns="cols" :pagination="page" :row-class-name="getRowClass"
+    :row-props="rowProps" style="height: '100%'" :max-height="height"
+    :scroll-x="scrollX ? scrollX * columns.length : '100%'" v-bind="$attrs" @update:expanded-row-keys="expanded" />
 </template>
 <script setup>
 import { Icon } from "#components";
@@ -49,7 +39,7 @@ const props = defineProps({
   modelValue: {
     required: false,
     type: [Object, Number, String],
-    default: () => {},
+    default: () => { },
   },
   selectable: {
     type: Boolean,
@@ -79,14 +69,15 @@ const props = defineProps({
     default: "selectedRow",
   },
   sortable: { type: Boolean, required: false, default: true },
+  draggable: { type: Boolean, required: false, default: true },
   resizable: { type: Boolean, required: false, default: true },
   filterable: { type: Boolean, required: false, default: true },
 });
 const originTable = ref(null);
 
-let draggingColumnIndex = null;
 
 function resetFilters() {
+  sorterList.value = [];
   processColumns();
 }
 function scrollTo(value) {
@@ -97,7 +88,9 @@ function getData() {
 }
 const cols = ref([]);
 var isDragging = null;
+const sorterList = ref([]);
 defineExpose({
+  sorterList,
   resetFilters,
   scrollTo,
   getData,
@@ -128,14 +121,19 @@ const items = computed(() => {
   const temp = !props.data
     ? []
     : props.data.map((item) => {
-        return { ...item };
-      });
-  sorterList.value.forEach((sorter) => {
-    temp.sort((a, b) => {
+      return { ...item };
+    });
+  const recursiveSort = (list, sorter) => {
+    list.sort((a, b) => {
       return universalSort(a, b, sorter);
     });
+    list.forEach((item) => {
+      if (item.children) recursiveSort(item.children, sorter);
+    });
+  }
+  sorterList.value.forEach((sorter) => {
+    recursiveSort(temp, sorter);
   });
-
   if (editedRow.value && editedIndex.value < 0) temp.unshift(editedRow.value);
   return temp;
 });
@@ -167,6 +165,7 @@ const emit = defineEmits([
   "update:expanded",
   "put",
   "delete",
+  "dragColumn",
 ]);
 window.addEventListener("mouseup", function (event) {
   isDragging = null;
@@ -186,6 +185,16 @@ const rowProps = (rowData, rowIndex) => ({
     }
   },
 });
+
+watch(()=>[...sorterList.value], ()=> {
+  cols.value.forEach((field) => {
+    var sort = sorterList.value.find((s) => s.key == field.key);
+    if (sort) {
+      field.sortOrder = sort.order;
+    }
+  });
+});
+
 watch(selectedKey, (newValue) => {
   if (!props.returnObject) emit("update:modelValue", newValue);
 });
@@ -197,7 +206,6 @@ watch(
   { deep: true }
 );
 
-var sorterList = ref([]);
 
 function getRowClass(rowData, index) {
   let classes = "";
@@ -205,14 +213,16 @@ function getRowClass(rowData, index) {
   if (
     attrs["row-key"] &&
     expandedKeys.value.indexOf(attrs["row-key"](rowData)) >= 0
-  )
+  ) {
     classes += " font-weight-bold ";
+  }
   if (
     (!attrs["row-key"] && index == selectedKey.value) ||
     (attrs["row-key"] && attrs["row-key"](rowData) == selectedKey.value)
   ) {
     classes += " " + props.selectedClass + " ";
   }
+
   return classes;
 }
 const processColumns = () => {
@@ -220,7 +230,8 @@ const processColumns = () => {
 
   const columns = ref(props.columns.map((c) => ({ ...c })));
   columns.value.forEach((field, idx) => {
-    // if (props.sortable && field.sortable != false) field.sorter = true;
+    if (props.sortable && field.sortable != false) field.sortable = true;
+    if (props.draggable && field.draggable != false) field.draggable = true;
 
     if (field.type == "selection") field.sorter = undefined;
     if (field.resizable != false) field.resizable = props.resizable;
@@ -276,12 +287,12 @@ const processColumns = () => {
             .map((o) => {
               return o
                 ? {
-                    label:
-                      typeof o === "string"
-                        ? o.charAt(0).toUpperCase() + o.slice(1)
-                        : "N/A",
-                    value: o,
-                  }
+                  label:
+                    typeof o === "string"
+                      ? o.charAt(0).toUpperCase() + o.slice(1)
+                      : "N/A",
+                  value: o,
+                }
                 : {};
             });
         else if (temp.length > 0 && typeof temp[0] != "object")
@@ -590,6 +601,10 @@ const processColumns = () => {
         };
       }
     }
+    var sort = sorterList.value.find((s) => s.key == field.key);
+    if (sort) {
+      field.sortOrder = sort.order;
+    }
     field.label = field.title;
     field.title = () => {
       return h(
@@ -600,32 +615,36 @@ const processColumns = () => {
           justify: "space-between",
           align: "center",
           onMousedown: (e) => {
+            if(field.draggable)
             isDragging = field.key;
           },
           onMouseup: (e) => {
+            if(field.draggable)
+
             isDragging = null;
           },
           onMouseover: (e) => {
-            if (isDragging && isDragging != field.key) {
+            if (props.draggable && isDragging && isDragging != field.key) {
               const dragging = cols.value.findIndex((c) => c.key == isDragging);
               const target = cols.value.findIndex((c) => c.key == field.key);
               const draggedItem = cols.value.splice(dragging, 1)[0];
               cols.value.splice(target, 0, draggedItem);
+              emit("dragColumn", cols.value)
             }
           },
         },
         {
           default: () => [
-            h("div", field.label),
+            h("div", field.label),field.sortable?
             h(
               NBadge,
               {
-                style:"height: 10px; font-size: 10px;",
-                color:"grey",
+                style: "height: 10px; font-size: 10px;",
+                color: "grey",
                 offset: [0, -10],
-                value: field.sortOrder?
+                value: field.sortOrder ?
                   sorterList.value.length -
-                  sorterList.value.findIndex((s) => s.key == field.key):0,
+                  sorterList.value.findIndex((s) => s.key == field.key) : 0,
               },
               {
                 default: () => [
@@ -674,7 +693,7 @@ const processColumns = () => {
                   ),
                 ],
               }
-            ),
+            ):null,
           ],
         }
       );
@@ -710,126 +729,123 @@ const processColumns = () => {
       render: (row, index) => {
         return editedIndex.value == index || row.new
           ? h(
-              NSpace,
-              { wrap: false },
-              {
-                default: () => [
-                  h(
-                    NButton,
-                    {
-                      circle: true,
-                      strong: true,
-                      tertiary: true,
-                      type: "success",
-                      onClick: () => {
-                        dialog.warning({
-                          title: `Confirmação de ${
-                            row.new ? "Inclusão" : "Alteração"
+            NSpace,
+            { wrap: false },
+            {
+              default: () => [
+                h(
+                  NButton,
+                  {
+                    circle: true,
+                    strong: true,
+                    tertiary: true,
+                    type: "success",
+                    onClick: () => {
+                      dialog.warning({
+                        title: `Confirmação de ${row.new ? "Inclusão" : "Alteração"
                           }`,
-                          content: `Tem certeza que deseja efetuar ${
-                            row.new ? "a Inclusão" : "as alterações"
+                        content: `Tem certeza que deseja efetuar ${row.new ? "a Inclusão" : "as alterações"
                           }?`,
-                          positiveText: "SIM",
-                          negativeText: "NÃO",
-                          onPositiveClick: () => {
-                            message.success(
-                              `Item ${
-                                row.new ? "incluido" : "alterado"
-                              } com sucesso`
-                            );
-                            emit("put", editedRow.value);
-                            editedIndex.value = null;
-                            editedRow.value = -1;
-                          },
-                        });
-                      },
+                        positiveText: "SIM",
+                        negativeText: "NÃO",
+                        onPositiveClick: () => {
+                          message.success(
+                            `Item ${row.new ? "incluido" : "alterado"
+                            } com sucesso`
+                          );
+                          emit("put", editedRow.value);
+                          editedIndex.value = null;
+                          editedRow.value = -1;
+                        },
+                      });
                     },
-                    {
-                      icon: () =>
-                        h(Icon, {
-                          name: "mdi:success-bold",
-                          color: "green",
-                          size: "22",
-                        }),
-                    }
-                  ),
-                  h(
-                    NButton,
-                    {
-                      circle: true,
-                      strong: true,
-                      tertiary: true,
-                      type: "warning",
-                      onClick: () => {
-                        editedIndex.value = -1;
-                        editedRow.value = null;
-                      },
-                      class: "mx-n2",
+                  },
+                  {
+                    icon: () =>
+                      h(Icon, {
+                        name: "mdi:success-bold",
+                        color: "green",
+                        size: "22",
+                      }),
+                  }
+                ),
+                h(
+                  NButton,
+                  {
+                    circle: true,
+                    strong: true,
+                    tertiary: true,
+                    type: "warning",
+                    onClick: () => {
+                      editedIndex.value = -1;
+                      editedRow.value = null;
                     },
-                    {
-                      icon: () =>
-                        h(Icon, {
-                          name: "mdi:cancel-bold",
-                          color: "orange",
-                          size: "22",
-                        }),
-                    }
-                  ),
-                  h(
-                    NButton,
-                    {
-                      circle: true,
-                      strong: true,
-                      tertiary: true,
-                      type: "error",
-                      onClick: () => {
-                        dialog.error({
-                          title: "Confirmação de Exclusão",
-                          content: "Tem certeza que deseja deletar este item?",
-                          positiveText: "SIM",
-                          negativeText: "NÃO",
-                          onPositiveClick: () => {
-                            message.success("Item removido com sucesso");
-                            emit("delete", editedRow.value);
-                            editedIndex.value = -1;
-                            editedRow.value = null;
-                          },
-                        });
-                      },
+                    class: "mx-n2",
+                  },
+                  {
+                    icon: () =>
+                      h(Icon, {
+                        name: "mdi:cancel-bold",
+                        color: "orange",
+                        size: "22",
+                      }),
+                  }
+                ),
+                h(
+                  NButton,
+                  {
+                    circle: true,
+                    strong: true,
+                    tertiary: true,
+                    type: "error",
+                    onClick: () => {
+                      dialog.error({
+                        title: "Confirmação de Exclusão",
+                        content: "Tem certeza que deseja deletar este item?",
+                        positiveText: "SIM",
+                        negativeText: "NÃO",
+                        onPositiveClick: () => {
+                          message.success("Item removido com sucesso");
+                          emit("delete", editedRow.value);
+                          editedIndex.value = -1;
+                          editedRow.value = null;
+                        },
+                      });
                     },
-                    {
-                      icon: () =>
-                        h(Icon, {
-                          name: "ic:baseline-delete",
-                          color: "red",
-                          size: "22",
-                        }),
-                    }
-                  ),
-                ],
-              }
-            )
+                  },
+                  {
+                    icon: () =>
+                      h(Icon, {
+                        name: "ic:baseline-delete",
+                        color: "red",
+                        size: "22",
+                      }),
+                  }
+                ),
+              ],
+            }
+          )
           : h(
-              NButton,
-              {
-                circle: true,
-                strong: true,
-                tertiary: true,
-                type: "info",
-                onClick: () => {
-                  editedIndex.value = index;
-                  editedRow.value = ref(structuredClone(toRaw(row))).value;
-                },
+            NButton,
+            {
+              circle: true,
+              strong: true,
+              tertiary: true,
+              type: "info",
+              onClick: () => {
+                editedIndex.value = index;
+                editedRow.value = ref(structuredClone(toRaw(row))).value;
               },
-              {
-                icon: () =>
-                  h(Icon, {
-                    name: "material-symbols:edit-outline",
-                    color: "blue",
-                    size: "20",
-                  }),
-              }
-            );
+            },
+            {
+              icon: () =>
+                h(Icon, {
+                  name: "material-symbols:edit-outline",
+                  color: "blue",
+                  size: "20",
+                }),
+            }
+          );
       },
     };
     if (columns.value.some((f) => f.key == "actions")) columns.value.splice(-1);
