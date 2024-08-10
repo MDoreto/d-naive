@@ -43,10 +43,10 @@ table.value.cols[1].setFilter("1616")
 const selected = ref();
 const data = ref([
   {
-    id: 9999992,
+    id: '9999992',
     text: "Texto",
     currency: 2343.56,
-    date: "2022-12-12",
+    date: "2012-12-12",
     bool: true,
     category: "pending",
     percent: 45,
@@ -109,7 +109,7 @@ for (let i = 0; i < 10000; i++) {
 
 const fields = ref([
   { type: "selection" },
-  { title: "ID", key: "id", type:"number", onUpdateFilters: (value) => console.log(value),noFormat: true},
+  { title: "ID", key: "id", onUpdateFilters: (value) => console.log(value),noFormat: true},
   {
     title: "Texto",
     key: "text",
@@ -126,19 +126,19 @@ const fields = ref([
   },
   { title: "Porcentagem", key: "percent", type: "number", suffix: "%" },
   { title: "Inteiro", key: "int", type: "number", precision: 0 },
-  {
-    title: "Ano",
-    key: "year",
-    type: "year",
-    format: "yyyy",
-    valueFormat: "yyyy",
-  },
-  {
-    title: "datetime",
-    key: "datetime",
-    type: "datetime",
-    format: "dd/MM/yyyy HH:mm:ss.SSS",
-  },
+  // {
+  //   title: "Ano",
+  //   key: "year",
+  //   type: "year",
+  //   format: "yyyy",
+  //   valueFormat: "yyyy",
+  // },
+  // {
+  //   title: "datetime",
+  //   key: "datetime",
+  //   type: "datetime",
+  //   format: "dd/MM/yyyy HH:mm:ss.SSS",
+  // },
 ]);
 </script>
 <style scoped>

@@ -25,12 +25,14 @@ import {
   NCheckbox,
   NVirtualList,
   createDiscreteApi,
+  NBadge,
 } from "naive-ui";
 
 import { computed, ref, watch, useAttrs, h, toRaw } from "vue";
 import { formatValue, getValue } from "../utils";
 import DInput from "./input.vue";
-
+import { useThemeVars } from "naive-ui";
+const themeVars = useThemeVars();
 const { message, dialog } = createDiscreteApi(["message", "dialog"]);
 
 const attrs = useAttrs();
@@ -81,6 +83,9 @@ const props = defineProps({
   filterable: { type: Boolean, required: false, default: true },
 });
 const originTable = ref(null);
+
+let draggingColumnIndex = null;
+
 function resetFilters() {
   processColumns();
 }
@@ -91,19 +96,46 @@ function getData() {
   return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData;
 }
 const cols = ref([]);
-
+var isDragging = null;
 defineExpose({
   resetFilters,
   scrollTo,
   getData,
   cols,
 });
+
+const universalSort = (a, b, sorter) => {
+  let v1 = a[sorter.key];
+  let v2 = b[sorter.key];
+  var order = sorter.order === "ascend" ? -1 : 1;
+  if (v1 === undefined || v1 === null) v1 = "";
+  if (v2 === undefined || v2 === null) v2 = "";
+  if (sorter.type === "number") {
+    return (v1 - v2) * order;
+  } else if (["date", "datetime"].includes(sorter.type)) {
+    const date1 = new Date(v1);
+    const date2 = new Date(v2);
+    return sorter.order === "ascend" ? date1 - date2 : date2 - date1;
+  } else if (sorter.type == "bool") {
+    return (v1 === v2 ? 0 : v1 ? -1 : 1) * order;
+  } else
+    return sorter.order === "ascend"
+      ? v1.localeCompare(v2)
+      : v2.localeCompare(v1);
+};
+
 const items = computed(() => {
   const temp = !props.data
     ? []
     : props.data.map((item) => {
         return { ...item };
       });
+  sorterList.value.forEach((sorter) => {
+    temp.sort((a, b) => {
+      return universalSort(a, b, sorter);
+    });
+  });
+
   if (editedRow.value && editedIndex.value < 0) temp.unshift(editedRow.value);
   return temp;
 });
@@ -136,6 +168,10 @@ const emit = defineEmits([
   "put",
   "delete",
 ]);
+window.addEventListener("mouseup", function (event) {
+  isDragging = null;
+});
+
 const rowProps = (rowData, rowIndex) => ({
   onClick: () => {
     if (props.selectable && rowData.selectable != false) {
@@ -160,6 +196,9 @@ watch(
   },
   { deep: true }
 );
+
+var sorterList = ref([]);
+
 function getRowClass(rowData, index) {
   let classes = "";
   if (rowData.disabled) classes += " disabledRow ";
@@ -177,9 +216,12 @@ function getRowClass(rowData, index) {
   return classes;
 }
 const processColumns = () => {
+  // Itere sobre os elementos e remova a classe de cada um deles
+
   const columns = ref(props.columns.map((c) => ({ ...c })));
-  columns.value.forEach((field) => {
-    if (props.sortable && field.sortable != false) field.sorter = "default";
+  columns.value.forEach((field, idx) => {
+    // if (props.sortable && field.sortable != false) field.sorter = true;
+
     if (field.type == "selection") field.sorter = undefined;
     if (field.resizable != false) field.resizable = props.resizable;
     if (!field.render)
@@ -548,6 +590,95 @@ const processColumns = () => {
         };
       }
     }
+    field.label = field.title;
+    field.title = () => {
+      return h(
+        NSpace,
+        {
+          style: "user-select:none; cursor: pointer;",
+          wrap: false,
+          justify: "space-between",
+          align: "center",
+          onMousedown: (e) => {
+            isDragging = field.key;
+          },
+          onMouseup: (e) => {
+            isDragging = null;
+          },
+          onMouseover: (e) => {
+            if (isDragging && isDragging != field.key) {
+              const dragging = cols.value.findIndex((c) => c.key == isDragging);
+              const target = cols.value.findIndex((c) => c.key == field.key);
+              const draggedItem = cols.value.splice(dragging, 1)[0];
+              cols.value.splice(target, 0, draggedItem);
+            }
+          },
+        },
+        {
+          default: () => [
+            h("div", field.label),
+            h(
+              NBadge,
+              {
+                style:"height: 10px; font-size: 10px;",
+                color:"grey",
+                offset: [0, -10],
+                value: field.sortOrder?
+                  sorterList.value.length -
+                  sorterList.value.findIndex((s) => s.key == field.key):0,
+              },
+              {
+                default: () => [
+                  h(
+                    NButton,
+                    {
+                      circle: true,
+                      text: true,
+                      size: "tiny",
+                      onClick: () => {
+                        if (!field.sortOrder) field.sortOrder = "ascend";
+                        else if (field.sortOrder === "ascend")
+                          field.sortOrder = "descend";
+                        else if (field.sortOrder === "descend")
+                          field.sortOrder = false;
+                        if (field.sortOrder) {
+                          var item = sorterList.value.find(
+                            (s) => s.key == field.key
+                          );
+                          if (item) item.order = field.sortOrder;
+                          else
+                            sorterList.value.unshift({
+                              key: field.key,
+                              order: field.sortOrder,
+                              type: field.type,
+                            });
+                        } else
+                          sorterList.value = sorterList.value.filter(
+                            (s) => s.key != field.key
+                          );
+                      },
+                    },
+                    {
+                      icon: () =>
+                        h(Icon, {
+                          name: "bi:arrow-down",
+                          color: field.sortOrder
+                            ? themeVars.value.primaryColor
+                            : "grey",
+                          style:
+                            field.sortOrder === "descend"
+                              ? "transform: rotate(180deg);"
+                              : "",
+                        }),
+                    }
+                  ),
+                ],
+              }
+            ),
+          ],
+        }
+      );
+    };
   });
   if (props.editable) {
     const col = {
