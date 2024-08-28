@@ -9,13 +9,13 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "naive-ui": "^2.37.3",
-    "nuxt": "latest",
-    "nuxt-icon": "^0.6.8"
+    "@nuxt/icon": "^1.5.0",
+    "naive-ui": "^2.39.0",
+    "nuxt": "^3.13.0"
   },
   "devDependencies": {
-    "sass": "^1.71.0",
-    "vite-plugin-vuetify": "^2.0.1",
-    "vuetify": "^3.5.4"
+    "sass": "^1.77.8",
+    "vite-plugin-vuetify": "^2.0.4",
+    "vuetify": "^3.7.1"
   }
 }

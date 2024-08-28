@@ -8,27 +8,12 @@
     <n-button @click="filter()">
       filter
     </n-button>
-    <d-data-table
-      ref="table"
-      v-model="selected"
-      :data="data"
-      :columns="fields"
-      editable
-      selectable
-      return-object
-      :row-key="(row) => row.id"
-      selected-class="selected"
-    />{{ data[0] }}
+    <d-data-table ref="table" v-model="selected" :data="data" :columns="fields" editable draggable selectable
+      return-object :row-key="(row) => row.id" selected-class="selected" />{{ data[0] }}
     <n-button @click="reset()">
       clear
     </n-button>
-    <d-input
-      v-for="f in fields"
-      :key="f.key"
-      v-model="data[0][f.key]"
-      form
-      v-bind="f"
-    />
+    <d-input v-for="f in fields" :key="f.key" v-model="data[0][f.key]" form v-bind="f" />
   </div>
 </template>
 <script setup>
@@ -37,7 +22,7 @@ const reset = () => {
   table.value.resetFilters();
 };
 const filter = () => {
-table.value.cols[1].setFilter("1616")
+  table.value.cols[1].setFilter("1616")
 
 };
 const selected = ref();
@@ -93,7 +78,7 @@ const data = ref([
 
 for (let i = 0; i < 10000; i++) {
   data.value.push({
-    id: i.toString(),
+    id: i.toString() + "asdlakmdllmlkmlkamlmdsduo",
     text: "Texto",
     currency: 2343.56,
     date: "2022-12-12",
@@ -109,10 +94,11 @@ for (let i = 0; i < 10000; i++) {
 
 const fields = ref([
   { type: "selection" },
-  { title: "ID", key: "id", onUpdateFilters: (value) => console.log(value),noFormat: true},
+  { title: "ID", key: "id", noFormat: true },
   {
     title: "Texto",
     key: "text",
+    title: () => h('div', 'teste')
   },
   { title: "Moeda", key: "currency", type: "number", prefix: "R$" },
   { title: "Number", key: "number", type: "number" },
