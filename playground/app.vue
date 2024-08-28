@@ -8,12 +8,28 @@
     <n-button @click="filter()">
       filter
     </n-button>
-    <d-data-table ref="table" v-model="selected" :data="data" :columns="fields" editable draggable selectable
-      return-object :row-key="(row) => row.id" selected-class="selected" />{{ data[0] }}
+    <d-data-table
+      ref="table"
+      v-model="selected"
+      :data="data"
+      :columns="fields"
+      editable
+      draggable
+      selectable
+      return-object
+      :row-key="(row) => row.id"
+      selected-class="selected"
+    />{{ data[0] }}
     <n-button @click="reset()">
       clear
     </n-button>
-    <d-input v-for="f in fields" :key="f.key" v-model="data[0][f.key]" form v-bind="f" />
+    <d-input
+      v-for="f in fields"
+      :key="f.key"
+      v-model="data[0][f.key]"
+      form
+      v-bind="f"
+    />
   </div>
 </template>
 <script setup>

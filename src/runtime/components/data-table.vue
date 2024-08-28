@@ -1,7 +1,17 @@
 <template>
-  <n-data-table ref="originTable" :data="items" :columns="cols" :pagination="page" :row-class-name="getRowClass"
-    :row-props="rowProps" style="height: '100%'" :max-height="height"
-    :scroll-x="scrollX ? scrollX * columns.length : '100%'" v-bind="$attrs" @update:expanded-row-keys="expanded" />
+  <n-data-table
+    ref="originTable"
+    :data="items"
+    :columns="cols"
+    :pagination="page"
+    :row-class-name="getRowClass"
+    :row-props="rowProps"
+    style="height: '100%'"
+    :max-height="height"
+    :scroll-x="scrollX ? scrollX * columns.length : '100%'"
+    v-bind="$attrs"
+    @update:expanded-row-keys="expanded"
+  />
 </template>
 <script setup>
 import { Icon } from "#components";
@@ -90,7 +100,7 @@ function getData() {
   return originTable.value.mainTableInstRef.bodyInstRef.rawPaginatedData;
 }
 const cols = ref([]);
-var isDragging = null;
+let isDragging = null;
 const sorterList = ref([]);
 defineExpose({
   sorterList,
@@ -101,9 +111,9 @@ defineExpose({
 });
 
 const universalSort = (a, b, sorter) => {
-  let v1 = a[sorter.key];
-  let v2 = b[sorter.key];
-  var order = sorter.order === "ascend" ? -1 : 1;
+  let v1 = getValue(a,sorter.key);
+  let v2 = getValue(b,sorter.key);
+  const order = sorter.order === "ascend" ? -1 : 1;
   if (v1 === undefined || v1 === null) v1 = "";
   if (v2 === undefined || v2 === null) v2 = "";
   if (sorter.type === "number") {
@@ -191,7 +201,7 @@ const rowProps = (rowData, rowIndex) => ({
 
 watch(() => [...sorterList.value], () => {
   cols.value.forEach((field) => {
-    var sort = sorterList.value.find((s) => s.key == field.key);
+    const sort = sorterList.value.find((s) => s.key == field.key);
     if (sort) {
       field.sortOrder = sort.order;
     }
@@ -230,7 +240,7 @@ function getRowClass(rowData, index) {
 }
 const processColumns = () => {
   // Itere sobre os elementos e remova a classe de cada um deles
-  var filters = {}
+  const filters = {}
   cols.value.forEach((c) => {
     if (c.filterOptionValue) {
       filters[c.key] = c.filterOptionValue
@@ -611,7 +621,7 @@ const processColumns = () => {
         };
       }
     }
-    var sort = sorterList.value.find((s) => s.key == field.key);
+    const sort = sorterList.value.find((s) => s.key == field.key);
     if (sort) {
       field.sortOrder = sort.order;
     }
@@ -671,7 +681,7 @@ const processColumns = () => {
                           else if (field.sortOrder === "descend")
                             field.sortOrder = false;
                           if (field.sortOrder) {
-                            var item = sorterList.value.find(
+                            const item = sorterList.value.find(
                               (s) => s.key == field.key
                             );
                             if (item) item.order = field.sortOrder;
