@@ -69,7 +69,7 @@ const props = defineProps({
     default: "selectedRow",
   },
   sortable: { type: Boolean, required: false, default: true },
-  draggable: { type: Boolean, required: false, default: true },
+  draggable: { type: Boolean, required: false, default: false },
   resizable: { type: Boolean, required: false, default: true },
   filterable: { type: Boolean, required: false, default: true },
 });
@@ -261,16 +261,16 @@ const processColumns = () => {
           });
         else if (field.type == "bool") {
           if (row[field.key] == true)
-            return h(Icon, { color: "green", size: "18", name: "gg:check-o" });
+            return h(Icon, { style: "color:green", size: "18", name: "gg:check-o" });
           else if (row[field.key] == false)
             return h(Icon, {
-              color: "red",
+              style: "color:red",
               size: "18",
               name: "ion:ban-outline",
             });
           else
             return h(Icon, {
-              color: "orange",
+              style: "color:orange",
               size: "18",
               name: "cil:warning",
             });
@@ -318,12 +318,13 @@ const processColumns = () => {
           return h(Icon, { name: "ph:calendar-duotone" });
         };
         field.filter = (value, row) => {
-          const v = new Date(getValue(row, field));
+          const v = getValue(row, field);
+          const d = new Date(v);
           return (
             !field.filterOptionValue ||
-            (row[field.key] &&
-              v >= new Date(field.filterOptionValue[0]) &&
-              v <= new Date(field.filterOptionValue[1]))
+            (v &&
+              d >= new Date(field.filterOptionValue[0]) &&
+              d <= new Date(field.filterOptionValue[1]))
           );
         };
         field.renderFilterMenu = ({ hide }) => {
@@ -476,7 +477,7 @@ const processColumns = () => {
             ((!f.search ||
               !field.filterOptions?.length > 0 ||
               v?.toLowerCase().includes(f.search.toLowerCase())) &&
-              (!f.options.length > 0 || !f.options.includes(v)))
+              (!f.options.length > 0 || f.options.includes(v)))
           );
         };
         let options = [
@@ -530,8 +531,8 @@ const processColumns = () => {
                   {
                     items: field.filterOptions,
                     style: { maxHeight: "200px", maxWidth: "200px" },
-                    itemSize: 12,
-                    itemResizable: true,
+                    itemSize:"42",
+                    itemResizable: false,
                   },
                   {
                     default: ({ item }) =>
@@ -540,12 +541,20 @@ const processColumns = () => {
                         label: item,
                         value: item,
                         style: { width: "100%" },
-                        checked: !(
+                        checked: (
                           field.filterOptionValue &&
                           field.filterOptionValue.options.indexOf(item) >= 0
                         ),
                         onUpdateChecked: (value) => {
                           if (value) {
+                            if (!field.filterOptionValue)
+                              field.filterOptionValue = {
+                                search: null,
+                                options: [],
+                              };
+                            field.filterOptionValue.options.push(item);
+                            
+                          } else {
                             field.filterOptionValue.options.splice(
                               field.filterOptionValue.options.indexOf(item),
                               1
@@ -555,13 +564,6 @@ const processColumns = () => {
                               !field.filterOptionValue?.options.length > 0
                             )
                               field.filterOptionValue = null;
-                          } else {
-                            if (!field.filterOptionValue)
-                              field.filterOptionValue = {
-                                search: null,
-                                options: [],
-                              };
-                            field.filterOptionValue.options.push(item);
                           }
                           if (field.onUpdateFilters)
                             field.onUpdateFilters(field.filterOptionValue);
@@ -618,7 +620,7 @@ const processColumns = () => {
       return h(
         NSpace,
         {
-          style: "user-select:none; cursor: pointer;",
+          style: field.draggable ? "user-select:none; cursor: pointer;" : '',
           wrap: false,
           justify: "space-between",
           align: "center",
@@ -643,7 +645,7 @@ const processColumns = () => {
         },
         {
           default: () => [
-            h("div", field.label), field.sortable ?
+            h("div", field.label instanceof Function ? field.label() : field.label), field.sortable ?
               h(
                 NBadge,
                 {
@@ -689,13 +691,11 @@ const processColumns = () => {
                         icon: () =>
                           h(Icon, {
                             name: "bi:arrow-down",
-                            color: field.sortOrder
+                            style: `color:${field.sortOrder
                               ? themeVars.value.primaryColor
-                              : "grey",
-                            style:
-                              field.sortOrder === "descend"
+                              : "grey"}; ${field.sortOrder === "descend"
                                 ? "transform: rotate(180deg);"
-                                : "",
+                                : ""} `,
                           }),
                       }
                     ),
@@ -733,7 +733,7 @@ const processColumns = () => {
             icon: () =>
               h(Icon, {
                 name: "mingcute:add-fill",
-                color: "green",
+                style: "color:green",
               }),
           }
         );
@@ -776,8 +776,7 @@ const processColumns = () => {
                     icon: () =>
                       h(Icon, {
                         name: "mdi:success-bold",
-                        color: "green",
-                        size: "22",
+                        style: "color:green", size: "22",
                       }),
                   }
                 ),
@@ -798,7 +797,7 @@ const processColumns = () => {
                     icon: () =>
                       h(Icon, {
                         name: "mdi:cancel-bold",
-                        color: "orange",
+                        style:"color:orange",
                         size: "22",
                       }),
                   }
@@ -829,7 +828,7 @@ const processColumns = () => {
                     icon: () =>
                       h(Icon, {
                         name: "ic:baseline-delete",
-                        color: "red",
+                        style:"color:red",
                         size: "22",
                       }),
                   }
@@ -853,7 +852,7 @@ const processColumns = () => {
               icon: () =>
                 h(Icon, {
                   name: "material-symbols:edit-outline",
-                  color: "blue",
+                  style:"color:blue",
                   size: "20",
                 }),
             }
