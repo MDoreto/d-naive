@@ -44,7 +44,7 @@ export const formatValue = (row, field) => {
       return new Date(value + " GMT-0300").toLocaleDateString("pt-br", { ...field })
     case "datetime":
       if (!value) return ""
-      return new Date(value + " GMT-0300").toLocaleString("pt-br", { ...field })
+      return new Date(value).toLocaleString("pt-br", { ...field })
     default:
       return value
   }
