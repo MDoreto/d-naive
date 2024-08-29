@@ -541,7 +541,7 @@ const processColumns = () => {
                   {
                     items: field.filterOptions,
                     style: { maxHeight: "200px", maxWidth: "200px" },
-                    itemSize:"42",
+                    itemSize:"24",
                     itemResizable: false,
                   },
                   {
