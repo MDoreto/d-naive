@@ -87,7 +87,7 @@
   </div>
 </template>
 <script setup>
-import { computed, useAttrs, ref, watch, defineOptions } from "vue";
+import { computed, useAttrs, ref, watch } from "vue";
 
 defineOptions({
   name: "DInput",

@@ -322,7 +322,7 @@ const processColumns = () => {
         field.filter = (value, row) => {
           return getValue(row, field) == value;
         };
-      } else if (["date", "month", "year"].indexOf(field.type) >= 0) {
+      } else if (["date", "month", "year","datetime"].indexOf(field.type) >= 0) {
         field.filterOptionValue = null;
         field.renderFilterIcon = () => {
           return h(Icon, { name: "ph:calendar-duotone" });
@@ -541,7 +541,7 @@ const processColumns = () => {
                   {
                     items: field.filterOptions,
                     style: { maxHeight: "200px", maxWidth: "200px" },
-                    itemSize:"24",
+                    itemSize:24,
                     itemResizable: false,
                   },
                   {
@@ -630,7 +630,7 @@ const processColumns = () => {
       return h(
         NSpace,
         {
-          style: field.draggable ? "user-select:none; cursor: pointer;" : '',
+          style: field.draggable ? "user-select:none; cursor: pointer;" : 'width: 100%; overflow: unset',
           wrap: false,
           justify: "space-between",
           align: "center",
@@ -922,5 +922,10 @@ watch(
 
 :deep(.disabledRow td) {
   color: red !important;
+}
+
+:deep(.n-data-table-th__title .n-ellipsis) {
+  overflow: unset !important;
+  display: block !important;
 }
 </style>
