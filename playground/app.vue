@@ -119,7 +119,7 @@ const fields = ref([
   { title: "Moeda", key: "currency", type: "number", prefix: "R$" },
   { title: "Number", key: "number", type: "number" },
   { title: "Data", key: "date", type: "date" },
-  { title: "Boolean", key: "bool", type: "bool" },
+  { title: "Boolean", key: "bool", type: "bool", onUpdateFilters: (v) => console.log("asd",v) },
   {
     label: "Categorias",
     title: "Categoria",

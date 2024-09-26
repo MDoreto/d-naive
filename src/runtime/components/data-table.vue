@@ -1,17 +1,7 @@
 <template>
-  <n-data-table
-    ref="originTable"
-    :data="items"
-    :columns="cols"
-    :pagination="page"
-    :row-class-name="getRowClass"
-    :row-props="rowProps"
-    style="height: '100%'"
-    :max-height="height"
-    :scroll-x="scrollX ? scrollX * columns.length : '100%'"
-    v-bind="$attrs"
-    @update:expanded-row-keys="expanded"
-  />
+  <n-data-table ref="originTable" :data="items" :columns="cols" :pagination="page" :row-class-name="getRowClass"
+    :row-props="rowProps" style="height: '100%'" :max-height="height"
+    :scroll-x="scrollX ? scrollX * columns.length : '100%'" v-bind="$attrs" @update:expanded-row-keys="expanded" />
 </template>
 <script setup>
 import { Icon } from "#components";
@@ -111,8 +101,8 @@ defineExpose({
 });
 
 const universalSort = (a, b, sorter) => {
-  let v1 = getValue(a,sorter.key);
-  let v2 = getValue(b,sorter.key);
+  let v1 = getValue(a, sorter.key);
+  let v2 = getValue(b, sorter.key);
   const order = sorter.order === "ascend" ? -1 : 1;
   if (v1 === undefined || v1 === null) v1 = "";
   if (v2 === undefined || v2 === null) v2 = "";
@@ -289,12 +279,78 @@ const processColumns = () => {
       };
     if (!field.filter && props.filterable && field.filter != false) {
       if (field.type == "bool") {
-        field.filterOptions = [
-          { label: "Y", value: "true" },
-          { label: "N", value: "false" },
-        ];
+        field.filterOptionValues = [];
+        field.filterMultiple = true
+        var options = {
+          true: { value: true, icon: "gg:check-o", color: 'green' },
+          false: { value: false, icon: "ion:ban-outline", color: 'red' },
+          na: { value: null, icon: 'cil:warning', color: 'orange' }
+        }
+        field.renderFilterMenu = ({ hide }) => {
+
+          return h(
+            NSpace,
+            { style: { padding: "12px" }, vertical: true },
+            {
+              default: () => [
+                ...Object.keys(options).map((key) => {
+                  return h(NCheckbox, {
+                    key: key,
+                    value: key,
+                    checked: field.filterOptionValues.includes(key),
+
+                    onUpdateChecked: (value) => {
+                      if (value) {
+                        if (!field.filterOptionValues.includes(key))
+                          field.filterOptionValues.push(key);
+                      } else {
+                        field.filterOptionValues.splice(field.filterOptionValues.indexOf(key), 1);
+                      }
+                      if (field.onUpdateFilters)
+                        field.onUpdateFilters(field.filterOptionValues);
+                    },
+                  }, { default: () => h(Icon, { name: options[key].icon, style: `color:${options[key].color}; margin-bottom: -2.5px` }) });
+                }),
+                h(
+                  NSpace,
+                  {},
+                  {
+                    default: () => [
+
+                      h(
+                        NButton,
+                        {
+                          size: "tiny",
+                          onClick: () => {
+                            field.filterOptionValues = [];
+                            if (field.onUpdateFilters)
+                              field.onUpdateFilters(field.filterOptionValues);
+                            hide();
+                          },
+                        },
+                        { default: () => "Clear" }
+                      ), h(
+                        NButton,
+                        {
+                          size: "tiny",
+                          type: "primary",
+                          class: "text-white",
+                          onClick: () => {
+
+                            hide();
+                          },
+                        },
+                        { default: () => "Ok" }
+                      )
+                    ],
+                  }
+                ),
+              ],
+            }
+          );
+        }
         field.filter = (value, row) => {
-          const valBool = value == "true";
+          const valBool = options[value].value;
           return getValue(row, field) == valBool;
         };
       } else if (field.type == "select") {
@@ -322,7 +378,7 @@ const processColumns = () => {
         field.filter = (value, row) => {
           return getValue(row, field) == value;
         };
-      } else if (["date", "month", "year","datetime"].indexOf(field.type) >= 0) {
+      } else if (["date", "month", "year", "datetime"].indexOf(field.type) >= 0) {
         field.filterOptionValue = null;
         field.renderFilterIcon = () => {
           return h(Icon, { name: "ph:calendar-duotone" });
@@ -347,9 +403,16 @@ const processColumns = () => {
                   type: "daterange",
                   value: field.filterOptionValue,
                   format: "dd/MM/yyyy",
+                  style: { color: "white" },
                   clearable: true,
                   onConfirm: ([min, max]) => {
                     field.filterOptionValue = [min, max];
+                    if (field.onUpdateFilters)
+                      field.onUpdateFilters(field.filterOptionValue);
+                    hide();
+                  },
+                  onClear: () => {
+                    field.filterOptionValue = null;
                     if (field.onUpdateFilters)
                       field.onUpdateFilters(field.filterOptionValue);
                     hide();
@@ -443,18 +506,6 @@ const processColumns = () => {
                         NButton,
                         {
                           size: "tiny",
-                          color: "green",
-                          class: "text-white",
-                          onClick: () => {
-                            hide();
-                          },
-                        },
-                        { default: () => "Ok" }
-                      ),
-                      h(
-                        NButton,
-                        {
-                          size: "tiny",
                           onClick: () => {
                             field.filterOptionValue = null;
                             if (field.onUpdateFilters)
@@ -463,6 +514,18 @@ const processColumns = () => {
                           },
                         },
                         { default: () => "Clear" }
+                      ),
+                      h(
+                        NButton,
+                        {
+                          size: "tiny",
+                          color: "green",
+                          class: "text-white",
+                          onClick: () => {
+                            hide();
+                          },
+                        },
+                        { default: () => "Ok" }
                       ),
                     ],
                   }
@@ -541,7 +604,7 @@ const processColumns = () => {
                   {
                     items: field.filterOptions,
                     style: { maxHeight: "200px", maxWidth: "200px" },
-                    itemSize:24,
+                    itemSize: 24,
                     itemResizable: false,
                   },
                   {
@@ -563,7 +626,7 @@ const processColumns = () => {
                                 options: [],
                               };
                             field.filterOptionValue.options.push(item);
-                            
+
                           } else {
                             field.filterOptionValue.options.splice(
                               field.filterOptionValue.options.indexOf(item),
@@ -590,18 +653,6 @@ const processColumns = () => {
                         NButton,
                         {
                           size: "tiny",
-                          type: "primary",
-                          class: "text-white",
-                          onClick: () => {
-                            hide();
-                          },
-                        },
-                        { default: () => "Ok" }
-                      ),
-                      h(
-                        NButton,
-                        {
-                          size: "tiny",
                           onClick: () => {
                             field.filterOptionValue = null;
                             field.filterOptions = getOptions();
@@ -611,6 +662,18 @@ const processColumns = () => {
                           },
                         },
                         { default: () => "Clear" }
+                      ),
+                      h(
+                        NButton,
+                        {
+                          size: "tiny",
+                          type: "primary",
+                          class: "text-white",
+                          onClick: () => {
+                            hide();
+                          },
+                        },
+                        { default: () => "Ok" }
                       ),
                     ],
                   }
@@ -807,7 +870,7 @@ const processColumns = () => {
                     icon: () =>
                       h(Icon, {
                         name: "mdi:cancel-bold",
-                        style:"color:orange",
+                        style: "color:orange",
                         size: "22",
                       }),
                   }
@@ -838,7 +901,7 @@ const processColumns = () => {
                     icon: () =>
                       h(Icon, {
                         name: "ic:baseline-delete",
-                        style:"color:red",
+                        style: "color:red",
                         size: "22",
                       }),
                   }
@@ -862,7 +925,7 @@ const processColumns = () => {
               icon: () =>
                 h(Icon, {
                   name: "material-symbols:edit-outline",
-                  style:"color:blue",
+                  style: "color:blue",
                   size: "20",
                 }),
             }
@@ -927,5 +990,10 @@ watch(
 :deep(.n-data-table-th__title .n-ellipsis) {
   overflow: unset !important;
   display: block !important;
+}
+</style>
+<style>
+.n-date-panel-actions__suffix .n-button--primary-type {
+  color: white !important;
 }
 </style>
