@@ -951,6 +951,14 @@ watch(
       selectedItem.value = null;
       selectedKey.value = null;
     }
+    else if ( typeof newValue !='object' && selectedKey.value != newValue) {
+      selectedKey.value = newValue;
+      selectedItem.value = items.value.find((i, idx) =>
+        attrs["row-key"]
+          ? attrs["row-key"](i) == newValue
+          : idx == newValue
+      );
+    }
   }
 );
 

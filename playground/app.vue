@@ -38,7 +38,8 @@ const reset = () => {
   table.value.resetFilters();
 };
 const filter = () => {
-  table.value.cols[1].setFilter("1616")
+  // table.value.cols[1].setFilter("1616")
+  selected.value = '0asdlakmdllmlkmlkamlmdsduo'
 
 };
 const selected = ref();
