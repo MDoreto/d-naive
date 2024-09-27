@@ -1,6 +1,10 @@
 # Changelog
 
 
+## v1.6.8
+
+[compare changes](https://github.com/mdoreto/d-naive/compare/v1.6.7...v1.6.8)
+
 ## v1.6.7
 
 [compare changes](https://github.com/mdoreto/d-naive/compare/v1.6.6...v1.6.7)
