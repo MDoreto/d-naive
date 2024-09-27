@@ -289,8 +289,7 @@ const processColumns = () => {
       };
     if (!field.filter && props.filterable && field.filter != false) {
       if (field.type == "bool") {
-        field.filterOptionValues = [];
-        field.filterMultiple = true
+        field.filterOptionValue = [];
         const options = {
           true: { value: true, icon: "gg:check-o", color: 'green' },
           false: { value: false, icon: "ion:ban-outline", color: 'red' },
@@ -307,17 +306,17 @@ const processColumns = () => {
                   return h(NCheckbox, {
                     key: key,
                     value: key,
-                    checked: field.filterOptionValues.includes(key),
+                    checked: field.filterOptionValue.includes(key),
 
                     onUpdateChecked: (value) => {
                       if (value) {
-                        if (!field.filterOptionValues.includes(key))
-                          field.filterOptionValues.push(key);
+                        if (!field.filterOptionValue.includes(key))
+                          field.filterOptionValue.push(key);
                       } else {
-                        field.filterOptionValues.splice(field.filterOptionValues.indexOf(key), 1);
+                        field.filterOptionValue.splice(field.filterOptionValue.indexOf(key), 1);
                       }
                       if (field.onUpdateFilters)
-                        field.onUpdateFilters(field.filterOptionValues);
+                        field.onUpdateFilters(field.filterOptionValue);
                     },
                   }, { default: () => h(Icon, { name: options[key].icon, style: `color:${options[key].color}; margin-bottom: -2.5px` }) });
                 }),
@@ -332,9 +331,9 @@ const processColumns = () => {
                         {
                           size: "tiny",
                           onClick: () => {
-                            field.filterOptionValues = [];
+                            field.filterOptionValue = [];
                             if (field.onUpdateFilters)
-                              field.onUpdateFilters(field.filterOptionValues);
+                              field.onUpdateFilters(field.filterOptionValue);
                             hide();
                           },
                         },
