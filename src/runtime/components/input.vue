@@ -11,6 +11,17 @@
       :loading="loading"
       v-bind="f"
     />
+    <n-select
+      v-else-if="f.type == 'list'"
+      v-model:value="value"
+      filterable
+      tag
+      multiple
+      :show="false"
+      clearable
+      :loading="loading"
+      v-bind="f"
+    />
     <n-input-number
       v-else-if="['number'].indexOf(f.type) >= 0"
       v-model:value="value"
@@ -37,7 +48,21 @@
       v-model:checked="value"
     />
     <n-date-picker
-      v-else-if="['date', 'month', 'daterange', 'year','monthrange','datetime','datetimerange','yearrange','quarter','quarterrange','week'].indexOf(f.type) >= 0"
+      v-else-if="
+        [
+          'date',
+          'month',
+          'daterange',
+          'year',
+          'monthrange',
+          'datetime',
+          'datetimerange',
+          'yearrange',
+          'quarter',
+          'quarterrange',
+          'week',
+        ].indexOf(f.type) >= 0
+      "
       v-model:formatted-value="value"
       value-format="yyyy-MM-dd"
       :format="'dd/MM/yyyy'"
@@ -118,7 +143,12 @@ if (props.asyncProps) {
   });
 }
 const f = computed(() => {
-  const field = { placeholder: "", ...attrs, ...asyncPropsValue.value, prefix:props.prefix };
+  const field = {
+    placeholder: "",
+    ...attrs,
+    ...asyncPropsValue.value,
+    prefix: props.prefix,
+  };
   if (field.type == "select") {
     if (
       field.options &&

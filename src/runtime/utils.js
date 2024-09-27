@@ -45,6 +45,8 @@ export const formatValue = (row, field) => {
     case "datetime":
       if (!value) return ""
       return new Date(value).toLocaleString("pt-br", { ...field })
+    case "list":
+      return value.join(", ")
     default:
       return value
   }

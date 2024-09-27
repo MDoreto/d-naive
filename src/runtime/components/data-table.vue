@@ -1,7 +1,17 @@
 <template>
-  <n-data-table ref="originTable" :data="items" :columns="cols" :pagination="page" :row-class-name="getRowClass"
-    :row-props="rowProps" style="height: '100%'" :max-height="height"
-    :scroll-x="scrollX ? scrollX * columns.length : '100%'" v-bind="$attrs" @update:expanded-row-keys="expanded" />
+  <n-data-table
+    ref="originTable"
+    :data="items"
+    :columns="cols"
+    :pagination="page"
+    :row-class-name="getRowClass"
+    :row-props="rowProps"
+    style="height: '100%'"
+    :max-height="height"
+    :scroll-x="scrollX ? scrollX * columns.length : '100%'"
+    v-bind="$attrs"
+    @update:expanded-row-keys="expanded"
+  />
 </template>
 <script setup>
 import { Icon } from "#components";
@@ -170,7 +180,7 @@ const emit = defineEmits([
   "delete",
   "dragColumn",
 ]);
-window.addEventListener("mouseup", function (event) {
+window.addEventListener("mouseup", function () {
   isDragging = null;
 });
 
@@ -237,7 +247,7 @@ const processColumns = () => {
     }
   });
   const columns = ref(props.columns.map((c) => ({ ...c })));
-  columns.value.forEach((field, idx) => {
+  columns.value.forEach((field) => {
     if (props.sortable && field.sortable != false) field.sortable = true;
     if (props.draggable && field.draggable != false) field.draggable = true;
 
@@ -281,7 +291,7 @@ const processColumns = () => {
       if (field.type == "bool") {
         field.filterOptionValues = [];
         field.filterMultiple = true
-        var options = {
+        const options = {
           true: { value: true, icon: "gg:check-o", color: 'green' },
           false: { value: false, icon: "ion:ban-outline", color: 'red' },
           na: { value: null, icon: 'cil:warning', color: 'orange' }
@@ -697,16 +707,16 @@ const processColumns = () => {
           wrap: false,
           justify: "space-between",
           align: "center",
-          onMousedown: (e) => {
+          onMousedown: () => {
             if (field.draggable)
               isDragging = field.key;
           },
-          onMouseup: (e) => {
+          onMouseup: () => {
             if (field.draggable)
 
               isDragging = null;
           },
-          onMouseover: (e) => {
+          onMouseover: () => {
             if (props.draggable && isDragging && isDragging != field.key) {
               const dragging = cols.value.findIndex((c) => c.key == isDragging);
               const target = cols.value.findIndex((c) => c.key == field.key);
@@ -918,7 +928,7 @@ const processColumns = () => {
               type: "info",
               onClick: () => {
                 editedIndex.value = index;
-                editedRow.value = ref(structuredClone(toRaw(row))).value;
+                editedRow.value = ref(toRaw(row)).value;
               },
             },
             {

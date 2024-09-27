@@ -15,7 +15,6 @@
       :columns="fields"
       editable
       draggable
-      selectable
       return-object
       :row-key="(row) => row.id"
       selected-class="selected"
@@ -39,13 +38,12 @@ const reset = () => {
 };
 const filter = () => {
   // table.value.cols[1].setFilter("1616")
-  selected.value = '0asdlakmdllmlkmlkamlmdsduo'
-
+  selected.value = "0asdlakmdllmlkmlkamlmdsduo";
 };
 const selected = ref();
 const data = ref([
   {
-    id: '9999992',
+    id: "9999992",
     text: "Texto",
     currency: 2343.56,
     date: "2012-12-12",
@@ -56,6 +54,8 @@ const data = ref([
     year: "2024",
     number: 2.53432,
     datetime: "2004-02-26 11:55:14.000",
+    lista: ["1", "2", "3"],
+
   },
   {
     id: "9999999",
@@ -67,6 +67,7 @@ const data = ref([
     percent: 80,
     int: 2,
     year: "2029",
+    lista: ["1", "2", "7"],
     children: [
       {
         text: "vvvvvvvvvvvvvvvv",
@@ -111,16 +112,22 @@ for (let i = 0; i < 10000; i++) {
 
 const fields = ref([
   { type: "selection" },
+  { title: "lista", key: "lista", type: "list" },
   { title: "ID", key: "id", noFormat: true },
   {
     title: "Texto",
     key: "text",
-    title: () => h('div', 'teste')
+    title: () => h("div", "teste"),
   },
   { title: "Moeda", key: "currency", type: "number", prefix: "R$" },
   { title: "Number", key: "number", type: "number" },
   { title: "Data", key: "date", type: "date" },
-  { title: "Boolean", key: "bool", type: "bool", onUpdateFilters: (v) => console.log("asd",v) },
+  {
+    title: "Boolean",
+    key: "bool",
+    type: "bool",
+    onUpdateFilters: (v) => console.log("asd", v),
+  },
   {
     label: "Categorias",
     title: "Categoria",
