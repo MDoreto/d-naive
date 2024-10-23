@@ -55,7 +55,7 @@ export const getValue = (row, field) => {
   var key = null
   if (!row || !field) return undefined
   if (typeof field === 'object')
-    key = field.key
+    key = field.view || field.key
   else key = field
   if (!key) return undefined
   var steps = key.split(".")
