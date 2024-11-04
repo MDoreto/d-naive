@@ -1,6 +1,6 @@
 {
   "name": "d-naive",
-  "version": "1.6.9",
+  "version": "1.6.10",
   "description": "Vue library designed to enhance Naive UI components with additional functionalities for complex data handling and user input management",
   "repository": "mdoreto/d-naive",
   "license": "MIT",
