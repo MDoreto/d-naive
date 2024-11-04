@@ -115,11 +115,11 @@ const universalSort = (a, b, sorter) => {
   const order = sorter.order === "ascend" ? -1 : 1;
   if (v1 === undefined || v1 === null) v1 = "";
   if (v2 === undefined || v2 === null) v2 = "";
-  if (sorter.type === "number") {
+  if (sorter.type === "number" || typeof v1 === 'number') {
     return (v1 - v2) * order;
   } else if (["date", "datetime"].includes(sorter.type)) {
-    const date1 = new Date(v1);
-    const date2 = new Date(v2);
+    const date1 = toDate(v1);
+    const date2 = toDate(v2);
     return sorter.order === "ascend" ? date1 - date2 : date2 - date1;
   } else if (sorter.type == "bool") {
     return (v1 === v2 ? 0 : v1 ? -1 : 1) * order;
@@ -547,7 +547,7 @@ const processColumns = () => {
                         NButton,
                         {
                           size: "tiny",
-                          color: "green",
+                          type: "primary",
                           class: "text-white",
                           onClick: () => {
                             hide();
@@ -583,7 +583,7 @@ const processColumns = () => {
         };
         let options = [
           ...new Set(items.value.map((o) => getValue(o, field))),
-        ].sort();
+        ].sort((a,b)=> universalSort(a,b, {key: field.key, order: "ascend"}));
         if (options.some((o) => o == undefined || o == null || o == ""))
           options.unshift("(blank)");
         options = options.filter((o) => o);

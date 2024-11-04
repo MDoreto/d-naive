@@ -9,6 +9,11 @@ function getValidValue(...values) {
   return undefined;
 }
 
+
+export function toDate(date) {
+  return date ? new Date(date + " GMT-0300") : null
+}
+
 export const formatValue = (row, field) => {
   const nuxtApp = useNuxtApp();
   const defaultOptions = nuxtApp.$dNaive
