@@ -10,7 +10,7 @@ function getValidValue(...values) {
 }
 
 
-export function toDate(date) {
+export const toDate = (date) => {
   return date ? new Date(date + " GMT-0300") : null
 }
 
