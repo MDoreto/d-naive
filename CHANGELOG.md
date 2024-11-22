@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.6.11
+
+[compare changes](https://github.com/mdoreto/d-naive/compare/v1.6.10...v1.6.11)
+
+### 🩹 Fixes
+
+- Missing toDate importing ([a4a5b25](https://github.com/mdoreto/d-naive/commit/a4a5b25))
+
+### ❤️ Contributors
+
+- MDoreto <matheusdoreto.md@gmail.com>
+
 ## v1.6.10
 
 [compare changes](https://github.com/mdoreto/d-naive/compare/v1.6.9...v1.6.10)
