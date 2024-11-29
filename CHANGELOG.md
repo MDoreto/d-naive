@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.7.0
+
+[compare changes](https://github.com/mdoreto/d-naive/compare/v1.6.11...v1.7.0)
+
+### 🚀 Enhancements
+
+- Theme colors ([71f49d3](https://github.com/mdoreto/d-naive/commit/71f49d3))
+
+### ❤️ Contributors
+
+- MDoreto <matheusdoreto.md@gmail.com>
+
 ## v1.6.11
 
 [compare changes](https://github.com/mdoreto/d-naive/compare/v1.6.10...v1.6.11)
