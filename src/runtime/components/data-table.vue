@@ -274,19 +274,19 @@ const processColumns = () => {
       else if (field.type == "bool") {
         if (row[field.key] == true)
           return h(Icon, {
-            style: "color:green",
+            style: `color: ${themeVars.value.successColor}`,
             size: "18",
             name: "gg:check-o",
           });
         else if (row[field.key] == false)
           return h(Icon, {
-            style: "color:red",
+            style: `color: ${themeVars.value.errorColor}`,
             size: "18",
             name: "ion:ban-outline",
           });
         else
           return h(Icon, {
-            style: "color:orange",
+            style: `color: ${themeVars.value.warningColor}`,
             size: "18",
             name: "cil:warning",
           });
@@ -297,9 +297,9 @@ const processColumns = () => {
       if (field.type == "bool") {
         field.filterOptionValue = [];
         const options = {
-          true: { value: true, icon: "gg:check-o", color: "green" },
-          false: { value: false, icon: "ion:ban-outline", color: "red" },
-          na: { value: null, icon: "cil:warning", color: "orange" },
+          true: { value: true, icon: "gg:check-o", color: themeVars.value.successColor },
+          false: { value: false, icon: "ion:ban-outline", color: themeVars.value.errorColor},
+          na: { value: null, icon: "cil:warning", color: themeVars.value.warningColor },
         };
         field.renderFilterMenu = ({ hide }) => {
           return h(
@@ -841,7 +841,7 @@ const processColumns = () => {
             icon: () =>
               h(Icon, {
                 name: "mingcute:add-fill",
-                style: "color:green",
+                style: `color: ${themeVars.value.successColor}`,
               }),
           }
         );
@@ -887,7 +887,7 @@ const processColumns = () => {
                       icon: () =>
                         h(Icon, {
                           name: "mdi:success-bold",
-                          style: "color:green",
+                          style: `color: ${themeVars.value.successColor}`,
                           size: "22",
                         }),
                     }
@@ -909,7 +909,7 @@ const processColumns = () => {
                       icon: () =>
                         h(Icon, {
                           name: "mdi:cancel-bold",
-                          style: "color:orange",
+                          style: themeVars.value.warningColor,
                           size: "22",
                         }),
                     }
@@ -940,7 +940,7 @@ const processColumns = () => {
                       icon: () =>
                         h(Icon, {
                           name: "ic:baseline-delete",
-                          style: "color:red",
+                          style: `color: ${themeVars.value.errorColor}`,
                           size: "22",
                         }),
                     }

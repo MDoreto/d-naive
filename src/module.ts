@@ -28,7 +28,7 @@ export default defineNuxtModule<ModuleOptions>({
     addImports([
       ...[
         'formatValue',
-        'getValue',
+        'getValue','toDate'
       ].map(n => ({ name: n, from: resolve('runtime/utils') })),
     ])
     addPluginTemplate({ getContents: () => plugin, filename: "plugin.mjs" })
