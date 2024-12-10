@@ -723,7 +723,7 @@ const processColumns = () => {
             ? "user-select:none; cursor: pointer;"
             : "width: 100%; overflow: unset",
           wrap: false,
-          justify: "space-between",
+          justify: field.align =='center'? "center":'space-between',
           align: "center",
           onMousedown: () => {
             if (field.draggable) isDragging = field.key;

@@ -159,8 +159,6 @@ const f = computed(() => {
   }
   field.prefix2 = field.prefix;
   delete field.prefix;
-  field.suffix2 = field.suffix;
-  delete field.suffix;
 
   return field;
 });
