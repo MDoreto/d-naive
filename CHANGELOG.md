@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.7.1
+
+[compare changes](https://github.com/mdoreto/d-naive/compare/v1.7.0...v1.7.1)
+
+### 🩹 Fixes
+
+- Suffix and align column title ([5907612](https://github.com/mdoreto/d-naive/commit/5907612))
+
+### 🏡 Chore
+
+- **release:** V1.7.0 ([206e5f7](https://github.com/mdoreto/d-naive/commit/206e5f7))
+
+### ❤️ Contributors
+
+- Matheus Doreto <matheus.alencar@prometeon.com>
+- MDoreto <matheusdoreto.md@gmail.com>
+
 ## v1.7.0
 
 [compare changes](https://github.com/mdoreto/d-naive/compare/v1.6.11...v1.7.0)
