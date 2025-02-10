@@ -46,10 +46,10 @@ export const formatValue = (row, field) => {
     }
     case "date":
       if (!value) return ""
-      return new Date(value + " GMT-0300").toLocaleDateString("pt-br", { ...field })
+      return toDate(value).toLocaleDateString("pt-br", { ...field })
     case "datetime":
       if (!value) return ""
-      return new Date(value).toLocaleString("pt-br", { ...field })
+      return toDate(value).toLocaleString("pt-br", { ...field })
     case "list":
       return value.join(", ")
     default:
