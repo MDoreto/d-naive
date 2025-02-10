@@ -650,9 +650,9 @@ const processColumns = () => {
                   {
                     default: ({ item }) => {
                       return h(NCheckbox, {
-                        key: t,
-                        label: t,
-                        value: t,
+                        key: item,
+                        label: item,
+                        value: item,
                         style: { width: "100%" },
                         checked:
                           field.filterOptionValue &&
@@ -701,6 +701,23 @@ const processColumns = () => {
                           },
                         },
                         { default: () => "Clear" }
+                      ),
+                      h(
+                        NButton,
+                        {
+                          size: "tiny",
+                          onClick: () => {
+                            if (!field.filterOptionValue)
+                              field.filterOptionValue = {
+                                search: null,
+                                options: [],
+                              };
+                            field.filterOptionValue.options = getOptions();
+                            if (field.onUpdateFilters)
+                              field.onUpdateFilters(field.filterOptionValue);
+                          },
+                        },
+                        { default: () => "All" }
                       ),
                       h(
                         NButton,
