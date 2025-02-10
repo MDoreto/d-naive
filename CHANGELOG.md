@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v1.8.0
+
+[compare changes](https://github.com/mdoreto/d-naive/compare/v1.7.1...v1.8.0)
+
+### 🚀 Enhancements
+
+- All button in search table ([f211743](https://github.com/mdoreto/d-naive/commit/f211743))
+
+### 🩹 Fixes
+
+- Datetime and list ([e36679c](https://github.com/mdoreto/d-naive/commit/e36679c))
+
+### 🏡 Chore
+
+- **release:** V1.7.1 ([cb45b04](https://github.com/mdoreto/d-naive/commit/cb45b04))
+
+### ❤️ Contributors
+
+- MDoreto <matheusdoreto.md@gmail.com>
+- Matheus Doreto <matheus.alencar@prometeon.com>
+
 ## v1.7.1
 
 [compare changes](https://github.com/mdoreto/d-naive/compare/v1.7.0...v1.7.1)
