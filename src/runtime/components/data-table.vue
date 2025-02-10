@@ -49,7 +49,7 @@ const props = defineProps({
   modelValue: {
     required: false,
     type: [Object, Number, String],
-    default: () => {},
+    default: () => { },
   },
   selectable: {
     type: Boolean,
@@ -133,8 +133,8 @@ const items = computed(() => {
   const temp = !props.data
     ? []
     : props.data.map((item) => {
-        return { ...item };
-      });
+      return { ...item };
+    });
   const recursiveSort = (list, sorter) => {
     list.sort((a, b) => {
       return universalSort(a, b, sorter);
@@ -298,7 +298,7 @@ const processColumns = () => {
         field.filterOptionValue = [];
         const options = {
           true: { value: true, icon: "gg:check-o", color: themeVars.value.successColor },
-          false: { value: false, icon: "ion:ban-outline", color: themeVars.value.errorColor},
+          false: { value: false, icon: "ion:ban-outline", color: themeVars.value.errorColor },
           na: { value: null, icon: "cil:warning", color: themeVars.value.warningColor },
         };
         field.renderFilterMenu = ({ hide }) => {
@@ -387,12 +387,12 @@ const processColumns = () => {
             .map((o) => {
               return o
                 ? {
-                    label:
-                      typeof o === "string"
-                        ? o.charAt(0).toUpperCase() + o.slice(1)
-                        : "N/A",
-                    value: o,
-                  }
+                  label:
+                    typeof o === "string"
+                      ? o.charAt(0).toUpperCase() + o.slice(1)
+                      : "N/A",
+                  value: o,
+                }
                 : {};
             });
         else if (temp.length > 0 && typeof temp[0] != "object")
@@ -413,12 +413,12 @@ const processColumns = () => {
         };
         field.filter = (value, row) => {
           const v = getValue(row, field);
-          const d = new Date(v);
+          const d = toDate(v);
           return (
             !field.filterOptionValue ||
             (v &&
-              d >= new Date(field.filterOptionValue[0]) &&
-              d <= new Date(field.filterOptionValue[1]))
+              d >= toDate(field.filterOptionValue[0]) &&
+              d <= toDate(field.filterOptionValue[1]))
           );
         };
         field.renderFilterMenu = ({ hide }) => {
@@ -562,7 +562,12 @@ const processColumns = () => {
             }
           );
         };
-      } else {
+      } 
+      
+      else if (field.type == "list"){
+        field.sortable = false
+      }
+      else {
         field.filterOptionValue = null;
         field.filterMutilple = true;
         field.renderFilterIcon = () => {
@@ -583,7 +588,7 @@ const processColumns = () => {
         };
         let options = [
           ...new Set(items.value.map((o) => getValue(o, field))),
-        ].sort((a,b)=> universalSort(a,b, {key: field.key, order: "ascend"}));
+        ].sort((a, b) => universalSort(a, b, { key: field.key, order: "ascend" }));
         if (options.some((o) => o == undefined || o == null || o == ""))
           options.unshift("(blank)");
         options = options.filter((o) => o);
@@ -609,12 +614,19 @@ const processColumns = () => {
         };
         field.filterOptions = getOptions(null);
         field.renderFilterMenu = ({ hide }) => {
+          const inputRef = ref(null);
+          nextTick(() => {
+            if (inputRef.value) {
+              inputRef.value.focus();
+            }
+          });
           return h(
             NSpace,
-            { style: { padding: "12px" }, vertical: true },
+            { style: { padding: "12px" }, vertical: true, autoFocus: true },
             {
               default: () => [
                 h(NInput, {
+                  ref: inputRef,
                   placeholder: "",
                   autofocus: true,
                   value: field.filterOptionValue?.search,
@@ -636,11 +648,11 @@ const processColumns = () => {
                     itemResizable: false,
                   },
                   {
-                    default: ({ item }) =>
-                      h(NCheckbox, {
-                        key: item,
-                        label: item,
-                        value: item,
+                    default: ({ item }) => {
+                      return h(NCheckbox, {
+                        key: t,
+                        label: t,
+                        value: t,
                         style: { width: "100%" },
                         checked:
                           field.filterOptionValue &&
@@ -667,7 +679,8 @@ const processColumns = () => {
                           if (field.onUpdateFilters)
                             field.onUpdateFilters(field.filterOptionValue);
                         },
-                      }),
+                      })
+                    }
                   }
                 ),
                 h(
@@ -723,7 +736,7 @@ const processColumns = () => {
             ? "user-select:none; cursor: pointer;"
             : "width: 100%; overflow: unset",
           wrap: false,
-          justify: field.align =='center'? "center":'space-between',
+          justify: field.align == 'center' ? "center" : 'space-between',
           align: "center",
           onMousedown: () => {
             if (field.draggable) isDragging = field.key;
@@ -749,66 +762,64 @@ const processColumns = () => {
             ),
             field.sortable
               ? h(
-                  NBadge,
-                  {
-                    style: "height: 10px; font-size: 10px;",
-                    color: "grey",
-                    offset: [0, -10],
-                    value: field.sortOrder
-                      ? sorterList.value.length -
-                        sorterList.value.findIndex((s) => s.key == field.key)
-                      : 0,
-                  },
-                  {
-                    default: () => [
-                      h(
-                        NButton,
-                        {
-                          circle: true,
-                          text: true,
-                          size: "tiny",
-                          onClick: () => {
-                            if (!field.sortOrder) field.sortOrder = "ascend";
-                            else if (field.sortOrder === "ascend")
-                              field.sortOrder = "descend";
-                            else if (field.sortOrder === "descend")
-                              field.sortOrder = false;
-                            if (field.sortOrder) {
-                              const item = sorterList.value.find(
-                                (s) => s.key == field.key
-                              );
-                              if (item) item.order = field.sortOrder;
-                              else
-                                sorterList.value.unshift({
-                                  key: field.key,
-                                  order: field.sortOrder,
-                                  type: field.type,
-                                });
-                            } else
-                              sorterList.value = sorterList.value.filter(
-                                (s) => s.key != field.key
-                              );
-                          },
+                NBadge,
+                {
+                  style: "height: 10px; font-size: 10px;",
+                  color: "grey",
+                  offset: [0, -10],
+                  value: field.sortOrder
+                    ? sorterList.value.length -
+                    sorterList.value.findIndex((s) => s.key == field.key)
+                    : 0,
+                },
+                {
+                  default: () => [
+                    h(
+                      NButton,
+                      {
+                        circle: true,
+                        text: true,
+                        size: "tiny",
+                        onClick: () => {
+                          if (!field.sortOrder) field.sortOrder = "ascend";
+                          else if (field.sortOrder === "ascend")
+                            field.sortOrder = "descend";
+                          else if (field.sortOrder === "descend")
+                            field.sortOrder = false;
+                          if (field.sortOrder) {
+                            const item = sorterList.value.find(
+                              (s) => s.key == field.key
+                            );
+                            if (item) item.order = field.sortOrder;
+                            else
+                              sorterList.value.unshift({
+                                key: field.key,
+                                order: field.sortOrder,
+                                type: field.type,
+                              });
+                          } else
+                            sorterList.value = sorterList.value.filter(
+                              (s) => s.key != field.key
+                            );
                         },
-                        {
-                          icon: () =>
-                            h(Icon, {
-                              name: "bi:arrow-down",
-                              style: `color:${
-                                field.sortOrder
-                                  ? themeVars.value.primaryColor
-                                  : "grey"
-                              }; ${
-                                field.sortOrder === "descend"
-                                  ? "transform: rotate(180deg);"
-                                  : ""
+                      },
+                      {
+                        icon: () =>
+                          h(Icon, {
+                            name: "bi:arrow-down",
+                            style: `color:${field.sortOrder
+                                ? themeVars.value.primaryColor
+                                : "grey"
+                              }; ${field.sortOrder === "descend"
+                                ? "transform: rotate(180deg);"
+                                : ""
                               } `,
-                            }),
-                        }
-                      ),
-                    ],
-                  }
-                )
+                          }),
+                      }
+                    ),
+                  ],
+                }
+              )
               : null,
           ],
         }
@@ -849,126 +860,123 @@ const processColumns = () => {
       render: (row, index) => {
         return editedIndex.value == index || row.new
           ? h(
-              NSpace,
-              { wrap: false },
-              {
-                default: () => [
-                  h(
-                    NButton,
-                    {
-                      circle: true,
-                      strong: true,
-                      tertiary: true,
-                      type: "success",
-                      onClick: () => {
-                        dialog.warning({
-                          title: `Confirmação de ${
-                            row.new ? "Inclusão" : "Alteração"
+            NSpace,
+            { wrap: false },
+            {
+              default: () => [
+                h(
+                  NButton,
+                  {
+                    circle: true,
+                    strong: true,
+                    tertiary: true,
+                    type: "success",
+                    onClick: () => {
+                      dialog.warning({
+                        title: `Confirmação de ${row.new ? "Inclusão" : "Alteração"
                           }`,
-                          content: `Tem certeza que deseja efetuar ${
-                            row.new ? "a Inclusão" : "as alterações"
+                        content: `Tem certeza que deseja efetuar ${row.new ? "a Inclusão" : "as alterações"
                           }?`,
-                          positiveText: "SIM",
-                          negativeText: "NÃO",
-                          onPositiveClick: () => {
-                            message.success(
-                              `Item ${
-                                row.new ? "incluido" : "alterado"
-                              } com sucesso`
-                            );
-                            emit("put", editedRow.value);
-                            editedIndex.value = null;
-                            editedRow.value = -1;
-                          },
-                        });
-                      },
+                        positiveText: "SIM",
+                        negativeText: "NÃO",
+                        onPositiveClick: () => {
+                          message.success(
+                            `Item ${row.new ? "incluido" : "alterado"
+                            } com sucesso`
+                          );
+                          emit("put", editedRow.value);
+                          editedIndex.value = null;
+                          editedRow.value = -1;
+                        },
+                      });
                     },
-                    {
-                      icon: () =>
-                        h(Icon, {
-                          name: "mdi:success-bold",
-                          style: `color: ${themeVars.value.successColor}`,
-                          size: "22",
-                        }),
-                    }
-                  ),
-                  h(
-                    NButton,
-                    {
-                      circle: true,
-                      strong: true,
-                      tertiary: true,
-                      type: "warning",
-                      onClick: () => {
-                        editedIndex.value = -1;
-                        editedRow.value = null;
-                      },
-                      class: "mx-n2",
+                  },
+                  {
+                    icon: () =>
+                      h(Icon, {
+                        name: "mdi:success-bold",
+                        style: `color: ${themeVars.value.successColor}`,
+                        size: "22",
+                      }),
+                  }
+                ),
+                h(
+                  NButton,
+                  {
+                    circle: true,
+                    strong: true,
+                    tertiary: true,
+                    type: "warning",
+                    onClick: () => {
+                      editedIndex.value = -1;
+                      editedRow.value = null;
                     },
-                    {
-                      icon: () =>
-                        h(Icon, {
-                          name: "mdi:cancel-bold",
-                          style: themeVars.value.warningColor,
-                          size: "22",
-                        }),
-                    }
-                  ),
-                  h(
-                    NButton,
-                    {
-                      circle: true,
-                      strong: true,
-                      tertiary: true,
-                      type: "error",
-                      onClick: () => {
-                        dialog.error({
-                          title: "Confirmação de Exclusão",
-                          content: "Tem certeza que deseja deletar este item?",
-                          positiveText: "SIM",
-                          negativeText: "NÃO",
-                          onPositiveClick: () => {
-                            message.success("Item removido com sucesso");
-                            emit("delete", editedRow.value);
-                            editedIndex.value = -1;
-                            editedRow.value = null;
-                          },
-                        });
-                      },
+                    class: "mx-n2",
+                  },
+                  {
+                    icon: () =>
+                      h(Icon, {
+                        name: "mdi:cancel-bold",
+                        style: themeVars.value.warningColor,
+                        size: "22",
+                      }),
+                  }
+                ),
+                h(
+                  NButton,
+                  {
+                    circle: true,
+                    strong: true,
+                    tertiary: true,
+                    type: "error",
+                    onClick: () => {
+                      dialog.error({
+                        title: "Confirmação de Exclusão",
+                        content: "Tem certeza que deseja deletar este item?",
+                        positiveText: "SIM",
+                        negativeText: "NÃO",
+                        onPositiveClick: () => {
+                          message.success("Item removido com sucesso");
+                          emit("delete", editedRow.value);
+                          editedIndex.value = -1;
+                          editedRow.value = null;
+                        },
+                      });
                     },
-                    {
-                      icon: () =>
-                        h(Icon, {
-                          name: "ic:baseline-delete",
-                          style: `color: ${themeVars.value.errorColor}`,
-                          size: "22",
-                        }),
-                    }
-                  ),
-                ],
-              }
-            )
+                  },
+                  {
+                    icon: () =>
+                      h(Icon, {
+                        name: "ic:baseline-delete",
+                        style: `color: ${themeVars.value.errorColor}`,
+                        size: "22",
+                      }),
+                  }
+                ),
+              ],
+            }
+          )
           : h(
-              NButton,
-              {
-                circle: true,
-                strong: true,
-                tertiary: true,
-                type: "info",
-                onClick: () => {
-                  editedIndex.value = index;
-                  editedRow.value = ref(toRaw(row)).value;
-                },
+            NButton,
+            {
+              circle: true,
+              strong: true,
+              tertiary: true,
+              type: "info",
+              onClick: () => {
+                editedIndex.value = index;
+                editedRow.value = ref(toRaw(row)).value;
               },
-              {
-                icon: () =>
-                  h(Icon, {
-                    name: "material-symbols:edit-outline",
-                    style: "color:blue",
-                    size: "20",
-                  }),
-              }
-            );
+            },
+            {
+              icon: () =>
+                h(Icon, {
+                  name: "material-symbols:edit-outline",
+                  style: "color:blue",
+                  size: "20",
+                }),
+            }
+          );
       },
     };
     if (columns.value.some((f) => f.key == "actions")) columns.value.splice(-1);

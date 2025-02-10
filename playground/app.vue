@@ -1,35 +1,37 @@
 <template>
-  <div>
-    <!-- <span v-for="d in data" :key="d.text">
+  <n-config-provider>
+    <div>
+      <!-- <span v-for="d in data" :key="d.text">
       <p v-for="f in fields" :key="f.key">
         {{ f.title }} - {{ formatValue(d, f) }}
       </p> </span
     >{{ selected }} -->
-    <n-button @click="filter()">
-      filter
-    </n-button>
-    <d-data-table
-      ref="table"
-      v-model="selected"
-      :data="data"
-      :columns="fields"
-      editable
-      draggable
-      return-object
-      :row-key="(row) => row.id"
-      selected-class="selected"
-    />{{ data[0] }}
-    <n-button @click="reset()">
-      clear
-    </n-button>
-    <d-input
+      <n-button @click="filter()">
+        filter
+      </n-button>
+      <d-data-table
+        ref="table"
+        v-model="selected"
+        :data="data"
+        :columns="fields"
+        editable
+        draggable
+        return-object
+        :row-key="(row) => row.id"
+        selected-class="selected"
+      />{{ data[0] }}
+      <n-button @click="reset()">
+        clear
+      </n-button>
+      <!-- <d-input
       v-for="f in fields"
       :key="f.key"
       v-model="data[0][f.key]"
       form
       v-bind="f"
-    />
-  </div>
+    /> -->
+    </div>
+  </n-config-provider>
 </template>
 <script setup>
 const table = ref();
@@ -37,7 +39,7 @@ const reset = () => {
   table.value.resetFilters();
 };
 const filter = () => {
-  // table.value.cols[1].setFilter("1616")
+  table.value.cols[1].setFilter("1616")
   selected.value = "0asdlakmdllmlkmlkamlmdsduo";
 };
 const selected = ref();
@@ -122,6 +124,8 @@ const fields = ref([
   { title: "Moeda", key: "currency", type: "number", prefix: "R$" },
   { title: "Number", key: "number", type: "number" },
   { title: "Data", key: "date", type: "date" },
+  { title: "Datetime", key: "datetime", type: "datetime" },
+
   {
     title: "Boolean",
     key: "bool",
