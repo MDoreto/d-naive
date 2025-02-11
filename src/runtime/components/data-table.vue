@@ -28,7 +28,7 @@ import {
 	NBadge,
 } from "naive-ui";
 
-import { computed, ref, watch, useAttrs, h, toRaw } from "vue";
+import { computed, ref, watch, useAttrs, h, toRaw, nextTick } from "vue";
 import { formatValue, getValue, toDate } from "../utils";
 import DInput from "./input.vue";
 import { useThemeVars } from "naive-ui";
