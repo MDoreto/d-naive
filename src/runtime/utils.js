@@ -11,7 +11,7 @@ function getValidValue(...values) {
 
 
 export const toDate = (date) => {
-  return date ? new Date(date + " GMT-0300") : null
+  return date ? new Date(date + date.length > 10 ? '': " GMT-0300") : null
 }
 
 export const formatValue = (row, field) => {
