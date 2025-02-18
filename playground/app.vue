@@ -55,7 +55,7 @@ const data = ref([
     int: 4,
     year: "2024",
     number: 2.53432,
-    datetime: "2004-02-26 11:55:14.000",
+    datetime: "2025-02-26 11:55:14.000",
     lista: ["1", "2", "3"],
 
   },
@@ -101,7 +101,7 @@ for (let i = 0; i < 10000; i++) {
     id: i.toString() + "asdlakmdllmlkmlkamlmdsduo",
     text: "Texto",
     currency: 2343.56,
-    date: "2022-12-12",
+    date: "2025-01-12",
     bool: true,
     category: "pending",
     percent: 45,
