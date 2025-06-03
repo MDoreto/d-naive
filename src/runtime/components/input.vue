@@ -134,14 +134,19 @@ const value = ref(
 );
 
 const asyncPropsValue = ref({});
-const loading = ref(false);
+const loadingAsync = ref(false);
 if (props.asyncProps) {
-  loading.value = true;
+  loadingAsync.value = true;
   props.asyncProps().then((a) => {
     asyncPropsValue.value = a;
-    loading.value = false;
+    loadingAsync.value = false;
   });
 }
+
+const loading = computed(() => {
+  return loadingAsync.value || f.value.loading;
+});
+
 const f = computed(() => {
   const field = {
     placeholder: "",
