@@ -5,6 +5,14 @@
 
 [compare changes](https://github.com/mdoreto/d-naive/compare/v1.8.4...v1.8.5)
 
+### 🩹 Fixes
+
+- DateFilter ([38439fd](https://github.com/mdoreto/d-naive/commit/38439fd))
+
+### ❤️ Contributors
+
+- MDoreto <matheusdoreto.md@gmail.com>
+
 ## v1.8.4
 
 [compare changes](https://github.com/mdoreto/d-naive/compare/v1.8.3...v1.8.4)
