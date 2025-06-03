@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.8.7
+
+[compare changes](https://github.com/mdoreto/d-naive/compare/v1.8.5...v1.8.7)
+
+### 🩹 Fixes
+
+- Loading prop ([5c2ed6b](https://github.com/mdoreto/d-naive/commit/5c2ed6b))
+
+### 🏡 Chore
+
+- **release:** V1.8.5 ([2a0c64c](https://github.com/mdoreto/d-naive/commit/2a0c64c))
+
+### ❤️ Contributors
+
+- Matheus Doreto <matheus.alencar@prometeon.com>
+
 ## v1.8.5
 
 [compare changes](https://github.com/mdoreto/d-naive/compare/v1.8.4...v1.8.5)
